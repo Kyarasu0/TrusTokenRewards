@@ -1,0 +1,85 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 32px;
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease, background 0.4s ease;
+  cursor: pointer;
+
+  box-sizing: border-box;
+}
+
+.card:hover {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.1);
+  transform: translateY(-8px) scale(1.01);
+}
+
+.card:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.largeIcon {
+  width: 100%;
+  height: 160px;
+  background: linear-gradient(135deg, #1d1d1f 0%, #434344 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+  margin-bottom: 24px;
+  color: #ffffff;
+  position: relative;
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.card:hover .largeIcon > svg {
+  transform: scale(1.15) rotate(5deg);
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.desc {
+  font-size: 0.95rem;
+  color: #86868b;
+  line-height: 1.5;
+  margin-bottom: 24px;
+  flex-grow: 1;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding-top: 16px;
+}
+
+.stats {
+  display: flex;
+  gap: 12px;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #515154;
+}

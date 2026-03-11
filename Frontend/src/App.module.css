@@ -1,0 +1,17 @@
+/* アプリルートのスタイリング。ほとんどのレイアウトは各ページ／
+   コンポーネントに委ねているため極小の内容です。 */
+
+.app {
+    /* 大きさ設定 */
+    width: 100%;
+    min-height: 100vh;
+    /* 要素配置設定 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* 配置基準設定 */
+    position: relative;
+    /* 装飾設定 */
+    overflow-x: hidden;
+}

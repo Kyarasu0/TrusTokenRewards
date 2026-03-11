@@ -1,0 +1,31 @@
+.group {
+  width: 100%;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #86868b;
+}
+
+.input {
+  width: 100%;
+  padding: 16px 16px 16px 48px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  font-size: 1rem;
+  color: #1d1d1f;
+  transition: all 0.2s ease;
+  box-sizing: border-box; 
+}
+
+.input:focus {
+  outline: none;
+  border-color: #1d1d1f;
+  box-shadow: 0 0 0 4px rgba(29, 29, 31, 0.1);
+}

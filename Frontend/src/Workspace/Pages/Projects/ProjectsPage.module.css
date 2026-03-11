@@ -1,0 +1,43 @@
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 120px 24px 80px;
+  position: relative;
+  z-index: 10;
+}
+
+.header {
+  margin-bottom: 40px;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: #86868b;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.createButtonContainer {
+  margin-bottom: 40px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.projectsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 100%;
+  max-width: 600px;
+}

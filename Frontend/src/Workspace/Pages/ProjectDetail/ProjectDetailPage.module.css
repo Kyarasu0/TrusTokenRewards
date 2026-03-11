@@ -1,0 +1,157 @@
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 120px 24px 80px;
+  position: relative;
+  z-index: 10;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  color: #1d1d1f;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 24px;
+}
+
+.backButton:hover {
+  background: #ffffff;
+  transform: scale(1.05);
+}
+
+.projectBox {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 24px;
+  padding: 32px;
+  margin-bottom: 40px;
+}
+
+.authorHeader {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.authorName {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1d1d1f;
+}
+
+.roomInfo {
+  font-size: 0.95rem;
+  color: #86868b;
+  margin-top: 4px;
+}
+
+.timestamp {
+  font-size: 0.85rem;
+  color: #a1a1a6;
+  margin-top: 6px;
+}
+
+.content {
+  font-size: 1.1rem;
+  color: #1d1d1f;
+  line-height: 1.8;
+  word-break: break-word;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.stats {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  color: #515154;
+  font-weight: 600;
+}
+
+.section {
+  margin-bottom: 40px;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+  color: #1d1d1f;
+}
+
+.transactionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.transactionItem {
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.txContent {
+  flex: 1;
+}
+
+.senderName {
+  font-weight: 600;
+  color: #1d1d1f;
+  font-size: 0.95rem;
+}
+
+.txTime {
+  font-size: 0.8rem;
+  color: #86868b;
+  margin-top: 4px;
+}
+
+.txAmount {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #d97706;
+}
+
+.noTransactions {
+  padding: 32px;
+  text-align: center;
+  color: #86868b;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+}
+
+.form {
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 400px;
+}
