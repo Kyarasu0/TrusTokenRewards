@@ -14,6 +14,7 @@ export interface AuthResponse {
 }
 
 interface Props {
+    address?: string;
     role: string;
     onSuccess: (data: AuthResponse) => void;
     showToast: (msg: string) => void;
@@ -24,7 +25,7 @@ interface Props {
 モジュール形式に分けることで、他ページでもフォーム部分だけを
 再利用しやすくしています（例えば別の認証ワークフローなど）。
  */
-export default function AuthForm({ onSuccess, showToast, role }: Props) {
+export default function AuthForm({ onSuccess, showToast, role}: Props) {
   const { ref, isVisible } = useFadeInUp();
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");

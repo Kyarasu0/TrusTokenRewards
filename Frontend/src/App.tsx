@@ -7,7 +7,7 @@ function HomeRoute({ showToast }: { showToast: (msg: string) => void }) {
   const navigate = useNavigate();
   const handleLogout = () => {
     showToast("ログアウトしました");
-    navigate("/login");
+    navigate("/Login");
   };
   return <HomePage showToast={showToast} onLogout={handleLogout} />;
 }
@@ -17,7 +17,7 @@ function ProjectsRoute({ showToast }: { showToast: (msg: string) => void }) {
   const navigate = useNavigate();
   const handleLogout = () => {
     showToast("ログアウトしました");
-    navigate("/login");
+    navigate("/Login");
   };
   return <ProjectsPage showToast={showToast} onLogout={handleLogout} />;
 }
@@ -27,7 +27,7 @@ function ProjectDetailRoute({ showToast }: { showToast: (msg: string) => void })
   const navigate = useNavigate();
   const handleLogout = () => {
     showToast("ログアウトしました");
-    navigate("/login");
+    navigate("/Login");
   };
   return <ProjectDetailPage showToast={showToast} onLogout={handleLogout} />;
 }
@@ -37,7 +37,7 @@ function CreateRoomRoute({ showToast }: { showToast: (msg: string) => void }) {
   const navigate = useNavigate();
   const handleLogout = () => {
     showToast("ログアウトしました");
-    navigate("/login");
+    navigate("/Login");
   };
   return <CreateRoomPage showToast={showToast} onLogout={handleLogout} />;
 }
@@ -47,7 +47,7 @@ function JoinRoomRoute({ showToast }: { showToast: (msg: string) => void }) {
   const navigate = useNavigate();
   const handleLogout = () => {
     showToast("ログアウトしました");
-    navigate("/login");
+    navigate("/Login");
   };
   return <JoinRoomPage showToast={showToast} onLogout={handleLogout} />;
 }
@@ -86,49 +86,49 @@ export default function App() {
 
           {/* ホームページではログアウト処理をルート内で定義 */}
           <Route
-            path="/home"
+            path="/Home"
             element={<HomeRoute showToast={showToast} />}
           />
 
           {/* 成果・投稿一覧ページ */}
           <Route
-            path="/projects"
+            path="/Projects"
             element={<ProjectsRoute showToast={showToast} />}
           />
 
           {/* 成果詳細ページ */}
           <Route
-            path="/projects/:id"
+            path="/Projects/:id"
             element={<ProjectDetailRoute showToast={showToast} />}
           />
 
           {/* ルーム作成ページ */}
           <Route
-            path="/create-room"
+            path="/CreateRoom"
             element={<CreateRoomRoute showToast={showToast} />}
           />
 
           {/* ルーム参加ページ */}
           <Route
-            path="/join-room"
+            path="/JoinRoom"
             element={<JoinRoomRoute showToast={showToast} />}
           />
 
           {/* ログインページはナビゲーション内でトーストのみ受け取り */}
           <Route
-            path="/login"
+            path="/Login"
             caseSensitive={false}
             element={<LoginPage showToast={showToast} />}
           />
 
           <Route
-            path="/register"
+            path="/Register"
             caseSensitive={false}
             element={<RegisterPage showToast={showToast} />}
           />
 
           {/* その他のパスはホームへリダイレクト */}
-          <Route path="*" element={<Navigate to="/home" replace />} />
+          <Route path="*" element={<Navigate to="/Home" replace />} />
         </Routes>
 
         <Toast message={toastMessage} />

@@ -15,6 +15,32 @@
     width: 100%;
 }
 
+.fileUpload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  border: 1px dashed rgba(0,0,0,0.2);
+  border-radius: 16px;
+  cursor: pointer;
+  background: rgba(255,255,255,0.6);
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.fileUpload:hover {
+  background: rgba(255,255,255,0.9);
+}
+
+.iconPreview {
+  width: 90px;
+  height: 90px;
+  border-radius: 16px;
+  object-fit: cover;
+}
+
 .backButton {
   display: flex;
   align-items: center;

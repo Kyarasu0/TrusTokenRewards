@@ -17,7 +17,7 @@ export default function Header({ onLogout, showToast }: Props) {
     <header className={styles.header}>
       <div
         className={styles.logo}
-        onClick={() => navigate("/home")}
+        onClick={() => navigate("/Home")}
         style={{ cursor: "pointer" }}
       >
         <ShieldCheck color="#1d1d1f" size={28} />

@@ -4,6 +4,8 @@ import Header from '../../Components/organisms/Header/Header';
 import TextInput from '../../Components/atoms/Input/TextInput';
 import PrimaryButton from '../../Components/atoms/Button/PrimaryButton';
 import styles from './CreateRoomPage.module.css';
+import { useState } from "react";
+import defaultImage from "../../../../public/Images/image.png";
 
 interface Props {
   showToast: (msg: string) => void;
@@ -23,14 +25,39 @@ interface Props {
  */
 export default function CreateRoomPage({ showToast, onLogout }: Props) {
   const navigate = useNavigate();
+  const [roomIcon, setRoomIcon] = useState<File | null>(null);
+  const [roomName, setRoomName] = useState("");
 
   // フォーム送信時の処理
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    showToast('ルームを作成しました！');
-    // 実際にはAPIで送信して、ホームページへリダイレクト
-    navigate('/home');
-  };
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  const formData = new FormData();
+  formData.append("roomName", roomName);
+
+  if (roomIcon) {
+    formData.append("roomIcon", roomIcon);
+  }
+
+  try {
+    const res = await fetch("/CreateRoom", {
+      method: "POST",
+      credentials: "include",
+      body: formData
+    });
+
+    if (!res.ok) {
+      showToast("ルーム作成に失敗しました");
+      return;
+    }
+
+    showToast("ルームを作成しました！");
+    navigate("/Home");
+
+  } catch (err) {
+    showToast("通信エラーが発生しました");
+  }
+};
 
   return (
     <>
@@ -64,6 +91,7 @@ export default function CreateRoomPage({ showToast, onLogout }: Props) {
                 type="text"
                 placeholder="例: マーケティングチーム"
                 required
+                onChange={(e) => setRoomName(e.target.value)}
               />
             </div>
 
@@ -99,20 +127,36 @@ export default function CreateRoomPage({ showToast, onLogout }: Props) {
 
             {/* 秘密鍵 */}
             <div className={styles.fieldGroup}>
-              <label className={styles.label}>秘密鍵 *</label>
+              <label className={styles.label}>パスワード *</label>
               <TextInput
                 type="password"
-                placeholder="ルームの秘密鍵を入力"
+                placeholder="ルーム作成者のパスワードを入力"
                 required
               />
             </div>
 
-            {/* ルームアイコン（オプション） */}
+            {/* ルームアイコン */}
             <div className={styles.fieldGroup}>
               <label className={styles.label}>ルームアイコン（オプション）</label>
-              <TextInput
-                type="text"
-                placeholder="アイコンの絵文字または名前"
+
+              <label htmlFor="roomIcon" className={styles.fileUpload}>
+                <img
+                  src={roomIcon ? URL.createObjectURL(roomIcon) : defaultImage}
+                  className={styles.iconPreview}
+                  alt="ルームアイコン"
+                />
+                <p>画像を選択</p>
+              </label>
+
+              <input
+                id="roomIcon"
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+                  setRoomIcon(file);
+                }}
               />
             </div>
 

@@ -1,5 +1,5 @@
 export async function Submit(path: string, userId: string, password: string) {
-
+  
   const res = await fetch(path, {
 
     method: "POST",

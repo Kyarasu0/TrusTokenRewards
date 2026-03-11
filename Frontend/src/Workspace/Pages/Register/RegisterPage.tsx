@@ -20,7 +20,6 @@ export default function RegisterPage({ showToast }: Props) {
 
   const handleSuccess = (data: AuthResponse) => {
     setPrivateKey(data.privateKey || "Not found...");
-    navigate('/Login');
   };
 
   return (

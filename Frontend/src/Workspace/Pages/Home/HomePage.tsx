@@ -45,21 +45,21 @@ export default function HomePage({ onLogout, showToast }: Props) {
         <div className={styles.navigationSection}>
           <button
             className={styles.navButton}
-            onClick={() => navigate('/projects')}
+            onClick={() => navigate('/Projects')}
           >
             <BookOpen size={20} />
             <span>成果を見る</span>
           </button>
           <button
             className={styles.navButton}
-            onClick={() => navigate('/create-room')}
+            onClick={() => navigate('/CreateRoom')}
           >
             <Plus size={20} />
             <span>ルーム作成</span>
           </button>
           <button
             className={styles.navButton}
-            onClick={() => navigate('/join-room')}
+            onClick={() => navigate('/JoinRoom')}
           >
             <LogIn size={20} />
             <span>ルーム参加</span>

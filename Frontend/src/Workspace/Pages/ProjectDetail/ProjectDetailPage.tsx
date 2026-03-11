@@ -46,7 +46,7 @@ export default function ProjectDetailPage({ showToast, onLogout }: Props) {
         {/* 戻るボタン */}
         <button
           className={styles.backButton}
-          onClick={() => navigate('/projects')}
+          onClick={() => navigate('/Projects')}
           title="戻る"
         >
           <ArrowLeft size={24} />

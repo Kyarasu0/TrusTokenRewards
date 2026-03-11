@@ -23,7 +23,7 @@ export default function JoinRoomPage({ showToast, onLogout }: Props) {
     e.preventDefault();
     showToast('ルームに参加しました！');
     // 実際にはAPIで検証して、ホームページへリダイレクト
-    navigate('/home');
+    navigate('/Home');
   };
 
   return (
@@ -82,7 +82,7 @@ export default function JoinRoomPage({ showToast, onLogout }: Props) {
             <p>新しいルームを作成したい？</p>
             <button
               className={styles.linkButton}
-              onClick={() => navigate('/create-room')}
+              onClick={() => navigate('/CreateRoom')}
             >
               ルームを作成する
             </button>

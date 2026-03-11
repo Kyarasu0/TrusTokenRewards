@@ -22,7 +22,7 @@ export default function ProjectsPage({ showToast, onLogout }: Props) {
 
   // 投稿をクリックして詳細画面へ遷移
   const handleSelectProject = (project: ProjectData) => {
-    navigate(`/projects/${project.id}`, { state: { project } });
+    navigate(`/Projects/${project.id}`, { state: { project } });
   };
 
   // 投稿作成画面へ遷移（後で実装）
