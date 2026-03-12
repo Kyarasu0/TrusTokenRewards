@@ -6,6 +6,7 @@ import Header from '../../Components/organisms/Header/Header';
 import ProjectCard from '../../Components/organisms/ProjectCard/ProjectCard';
 import PrimaryButton from '../../Components/atoms/Button/PrimaryButton';
 import styles from './ProjectsPage.module.css';
+import { useParams } from "react-router-dom";
 
 interface Props {
   showToast: (msg: string) => void;
@@ -22,14 +23,15 @@ export default function ProjectsPage({ showToast, onLogout }: Props) {
 
   // 投稿をクリックして詳細画面へ遷移
   const handleSelectProject = (project: ProjectData) => {
-    navigate(`/Projects/${project.id}`, { state: { project } });
+    navigate(`/Rooms/${RoomName}/${project.id}`, { state: { project } });
   };
 
   // 投稿作成画面へ遷移（後で実装）
   const handleCreateProject = () => {
-    showToast('投稿作成画面へ遷移します');
-    // navigate('/projects/create');
+    navigate(`/CreateProject`);
   };
+
+  const { RoomName } = useParams();
 
   return (
     <>
@@ -37,7 +39,7 @@ export default function ProjectsPage({ showToast, onLogout }: Props) {
 
       <main className={styles.container}>
         <div className={styles.header}>
-          <h1 className={styles.title}>成果と感謝</h1>
+          <h1 className={styles.title}>{RoomName} の成果</h1>
           <p className={styles.subtitle}>
             チームメンバーの素晴らしい成果をシェアしよう。
             <br />

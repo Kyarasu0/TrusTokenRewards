@@ -5,6 +5,7 @@ import Header from '../../Components/organisms/Header/Header';
 import PrimaryButton from '../../Components/atoms/Button/PrimaryButton';
 import TextInput from '../../Components/atoms/Input/TextInput';
 import styles from './ProjectDetailPage.module.css';
+// import { useParams } from "react-router-dom";
 
 interface Props {
   showToast: (msg: string) => void;
@@ -107,7 +108,7 @@ export default function ProjectDetailPage({ showToast, onLogout }: Props) {
           <form onSubmit={handleSendToken} className={styles.form}>
             <TextInput
               type="password"
-              placeholder="秘密鍵を入力"
+              placeholder="パスワードを入力"
               required
             />
             <TextInput

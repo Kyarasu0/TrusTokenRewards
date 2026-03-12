@@ -1,7 +1,7 @@
 import styles from "./HomePage.module.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, LogIn, BookOpen } from "lucide-react";
+import { Plus, LogIn } from "lucide-react";
 
 import Header from "../../Components/organisms/Header/Header";
 import RoomGrid from "../../Components/organisms/RoomGrid/RoomGrid";
@@ -32,7 +32,7 @@ export default function HomePage({ onLogout, showToast }: Props) {
   }, []);
 
   const handleRoomJoin = (roomName: string) => {
-    showToast(`${roomName} に参加しました`);
+    navigate(`/Rooms/${roomName}`);
   };
 
   return (
@@ -43,13 +43,6 @@ export default function HomePage({ onLogout, showToast }: Props) {
       <main className={styles.main}>
         {/* ナビゲーションボタン */}
         <div className={styles.navigationSection}>
-          <button
-            className={styles.navButton}
-            onClick={() => navigate('/Projects')}
-          >
-            <BookOpen size={20} />
-            <span>成果を見る</span>
-          </button>
           <button
             className={styles.navButton}
             onClick={() => navigate('/CreateRoom')}

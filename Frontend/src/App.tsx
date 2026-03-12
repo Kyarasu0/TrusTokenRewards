@@ -22,6 +22,16 @@ function ProjectsRoute({ showToast }: { showToast: (msg: string) => void }) {
   return <ProjectsPage showToast={showToast} onLogout={handleLogout} />;
 }
 
+// helper: ProjectsRoute でログアウト処理を定義
+function CreateProjectRoute({ showToast }: { showToast: (msg: string) => void }) {
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    showToast("ログアウトしました");
+    navigate("/Login");
+  };
+  return <CreateProjectPage showToast={showToast} onLogout={handleLogout} />;
+}
+
 // helper: ProjectDetailRoute でログアウト処理を定義
 function ProjectDetailRoute({ showToast }: { showToast: (msg: string) => void }) {
   const navigate = useNavigate();
@@ -60,6 +70,7 @@ import ProjectsPage from "./Workspace/Pages/Projects/ProjectsPage";
 import ProjectDetailPage from "./Workspace/Pages/ProjectDetail/ProjectDetailPage";
 import CreateRoomPage from "./Workspace/Pages/CreateRoom/CreateRoomPage";
 import JoinRoomPage from "./Workspace/Pages/JoinRoom/JoinRoomPage";
+import CreateProjectPage from "./Workspace/Pages/CreateProject/CreateProjectPage";
 
 // Components インポート
 import AppBackground from "./Workspace/Components/organisms/layout/AppBackground/AppBackground";
@@ -92,14 +103,19 @@ export default function App() {
 
           {/* 成果・投稿一覧ページ */}
           <Route
-            path="/Projects"
+            path="/Rooms/:RoomName"
             element={<ProjectsRoute showToast={showToast} />}
           />
 
           {/* 成果詳細ページ */}
           <Route
-            path="/Projects/:id"
+            path="/Rooms/:RoomName/:ProjectId"
             element={<ProjectDetailRoute showToast={showToast} />}
+          />
+
+          <Route
+            path="/CreateProject"
+            element={<CreateProjectRoute showToast={showToast} />}
           />
 
           {/* ルーム作成ページ */}

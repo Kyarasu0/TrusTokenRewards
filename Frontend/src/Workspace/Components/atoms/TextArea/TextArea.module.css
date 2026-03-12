@@ -1,0 +1,16 @@
+.textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #d2d2d7;
+  font-size: 0.95rem;
+  resize: vertical;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.textarea:focus {
+  border-color: #007AFF;
+  box-shadow: 0 0 0 2px rgba(0,122,255,0.15);
+}
