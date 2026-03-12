@@ -89,7 +89,7 @@ router.post(
     // 3. Shutdown Log
     // ==============================
     console.log(`\n[${logOwner}] Shutdown!\n`);
-    return res.status(201).json({ message: 'ルーム参加が完了しました' });
+    return res.redirect("/Home");
 });
 
 // Routerエクスポート

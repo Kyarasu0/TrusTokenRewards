@@ -35,7 +35,7 @@ export default function AuthForm({ onSuccess, showToast, role}: Props) {
     e.preventDefault();
 
     try {
-        const data = await Submit(`/${role}/Submit`, userId, password);
+        const data = await Submit(`/${role}/Submit`, userId, password, showToast);
 
         showToast(`${role} successful!`);
         onSuccess(data);

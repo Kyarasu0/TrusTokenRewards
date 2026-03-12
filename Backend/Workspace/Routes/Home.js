@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 // 自作モジュール読み込み
 import DBPerf from '../Tools/DBPerf.js';
 import VCM from '../Tools/VCM.js';
+import { LeftTokenAmount } from '../Tools/LeftToken.js';
 
 // __dirname 再生成
 const __filename = fileURLToPath(import.meta.url);
@@ -72,7 +73,7 @@ router.get('/RoomList', VCM('LOGIN_TOKEN', process.env.LOGIN_SECRET), async (req
             m.MosaicID
         FROM RoomDetails rd
         JOIN Rooms r ON rd.RoomName = r.RoomName
-        JOIN Mosaic m ON r.MosaicName = m.MosaicName
+        JOIN Mosaic m ON rd.MosaicName = m.MosaicName
         WHERE r.UserID = ?`,
         [userId]
     );

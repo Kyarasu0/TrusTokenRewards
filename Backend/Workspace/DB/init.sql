@@ -6,8 +6,10 @@ CREATE TABLE Identify (
 );
 
 CREATE TABLE Mosaic (
-    MosaicID    VARCHAR(255) PRIMARY KEY,
-    MosaicName  VARCHAR(100) UNIQUE NOT NULL
+    MosaicID      VARCHAR(255) PRIMARY KEY,
+    MosaicName    VARCHAR(100) UNIQUE NOT NULL,
+    OwnerUserID   VARCHAR(255) NOT NULL,
+    FOREIGN KEY (OwnerUserID) REFERENCES Identify(UserID)
 );
 
 CREATE TABLE RoomDetails (
@@ -30,12 +32,10 @@ CREATE TABLE Rooms (
 );
 
 CREATE TABLE Projects (
+    ProjectsID      INT AUTO_INCREMENT PRIMARY KEY,
     UserID          VARCHAR(255) NOT NULL,
     RoomName        VARCHAR(100) NOT NULL,
-    ProjectsID      INT AUTO_INCREMENT PRIMARY KEY,
     Content         TEXT NOT NULL,
-
-    PRIMARY KEY (UserID, RoomName),
     FOREIGN KEY (UserID) REFERENCES Identify(UserID)
         ON DELETE CASCADE,
     FOREIGN KEY (RoomName) REFERENCES RoomDetails(RoomName)
@@ -50,5 +50,5 @@ CREATE TABLE ProjectDetails (
     TxID       TEXT NOT NULL,
 
     FOREIGN KEY (fromUserID) REFERENCES Identify(UserID)
-        ON DELETE CASCADE,
+        ON DELETE CASCADE
 );

@@ -41,7 +41,7 @@ function SaveIcon(file, folder) {
     console.log(`[${logOwner}] Input => file: ${file}, folder: ${folder}`);
 
     // 拡張子を取得
-    const ext = path.extname(file.originalName);
+    const ext = path.extname(file.originalname);
     // UUID + 拡張子で一意的なファイル名に変換
     const fileName = `${randomUUID()}${ext}`;
     // 保存用フォルダのパスを取得
@@ -94,7 +94,7 @@ router.get(
 router.post(
     '/Submit',
     VCM('LOGIN_TOKEN', process.env.LOGIN_SECRET),
-    upload.fields([{ name: "RoomIcon", maxCount: 1 },{ name: "MosaicIcon", maxCount: 1 }]),
+    upload.fields([{ name: "roomIcon", maxCount: 1 }]),
     async (req, res) => {
 
         // ==========================
@@ -112,7 +112,7 @@ router.post(
             return res.status(400).json({
                 message: "Bad Request: 情報が不足しています。"
             });
-        }else if (!req.files?.RoomIcon){
+        }else if (!req.files?.roomIcon){
             return res.status(400).json({
                 message: "Bad Request: ルーム用のアイコンが不足しています。"
             });
@@ -180,6 +180,28 @@ router.post(
             );
             console.log(`[${logOwner}] Step4 Log: Mosaicの供給`);
             console.log(`[${logOwner}] Mosaic Definition TX Hash:`, supplyResult.hash);
+
+            // ==============================
+            // 5. 渡された情報の保存
+            // ==============================
+            const roomIconPath = await SaveIcon(req.files.roomIcon[0], "Rooms");
+            // 1. MosaicのDB登録
+            await DBPerf(
+                "INSERT Mosaic",
+                "INSERT INTO Mosaic(MosaicName, MosaicId, OwnerUserID) VALUES (?, ?, ?)",
+                [mosaicName, mosaicId, userId]
+            );
+            await DBPerf(
+                "INSERT RoomDetails",
+                "INSERT INTO RoomDetails(RoomName, RoomIconPath, MosaicName) VALUES (?, ?, ?)",
+                [roomName, roomIconPath, mosaicName]
+            );
+            await DBPerf(
+                "INSERT Rooms",
+                "INSERT INTO Rooms(UserID, RoomName) VALUES (?, ?)",
+                [userId, roomName]
+            );
+
         }  catch (txErr) {
             console.error(`[${logOwner}] Blockchain Transaction Error:`, txErr);
             return res.status(500).json({ 
@@ -189,25 +211,10 @@ router.post(
         }
 
         // ==============================
-        // 5. 渡された情報の保存
-        // ==============================
-        const roomIconPath = await SaveIcon(req.files.RoomIcon[0], "Rooms");
-        await DBPerf(
-            "INSERT RoomDetails",
-            "INSERT INTO RoomDetails(RoomName, RoomIconPath, MosaicName) VALUES (?, ?, ?)",
-            [roomName, roomIconPath, mosaicName]
-        );
-        await DBPerf(
-            "INSERT Rooms",
-            "INSERT INTO Rooms(UserID, RoomName) VALUES (?, ?)",
-            [userId, roomName]
-        );
-
-        // ==============================
         // 6. Shutdown Log
         // ==============================
         console.log(`\n[${logOwner}] Shutdown!\n`);
-        return res.status(201).json({ message: "Room created successfully" });
+        return res.redirect("/Home");
     }
 );
 
