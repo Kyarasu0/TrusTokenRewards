@@ -32,7 +32,7 @@ const db = mysql.createPool({
 async function DBPerf(label, query, elements) {
     // Startup Log
     const logOwner = "DBPerf";
-    console.log(`\n${logOwner}-Function is running!\n`);
+    console.log(`\n[${logOwner}] ${logOwner}-Function is running!\n`);
     // I/O Log
     console.log(`[${logOwner}] Input => label: ${label}, query: ${query}, elements: ${elements}`);
 
@@ -51,7 +51,7 @@ async function DBPerf(label, query, elements) {
         return result;
     }catch(err){
         console.error(`[${logOwner}] Error executing "${label}":`, err);
-        console.log(`[${logOwner}] Shutdown!`);
+        console.log(`\n[${logOwner}] Shutdown!\n`);
         throw err;
     }
 }

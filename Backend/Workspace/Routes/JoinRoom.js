@@ -1,54 +1,96 @@
+// 標準モジュール読み込み
 import express from 'express';
+// 自作モジュール読み込み
 import DBPerf from '../Tools/DBPerf.js';
 import VCM from '../Tools/VCM.js';
 
+// Express Router 初期化
 const router = express.Router();
 
+// JSONボディを解析可能にする
 router.use(express.json());
 
-router.post('/' , VCM('LOGIN_TOKEN', process.env.LOGIN_SECRET), async (req, res) => {
-    console.log('/JoinRoom-API is running');
+// ==========================
+// 画面表示ルート
+// GET /JoinRoom/
+// ==========================
+router.get(
+  '/',
+  VCM('LOGIN_TOKEN', process.env.LOGIN_SECRET),
+  (req, res) => {
+    // ==========================
+    // 0. Startup Log
+    // ==========================
+    const logOwner = "/JoinRoom/";
+    console.log(`\n[${logOwner}] ${logOwner}-API is running!\n`);
+    // ==========================
+    // 1. Shutdown Log
+    // ==========================
+    console.log(`\n[${logOwner}] Shutdown!\n`);
 
-    try {
-        const userId = req.auth.userId;
-        const inputRoomName = req.body?.roomName;
-        const roomName = typeof inputRoomName === 'string' ? inputRoomName.trim() : '';
+    // ページを配って終了
+    res.sendFile( path.join(__dirname, "..", "..", "..", "Frontend", "dist", "index.html") );
+  }
+);
 
-        if (!roomName) {
-            return res.status(400).json({ message: 'Bad Request: roomNameが不足しています' });
-        }
+// ==========================
+// ルーム参加ルート
+// POST /JoinRoom/Submit
+// ==========================
+router.post(
+    '/Submit',
+    VCM('LOGIN_TOKEN', process.env.LOGIN_SECRET),
+    async (req, res) => {
+    
+    // ==========================
+    // 0. Startup Log
+    // ==========================
+    const logOwner = "/JoinRoom/Submit";
+    console.log(`\n[${logOwner}] ${logOwner}-API is running!\n`);
 
-        const roomExists = await DBPerf(
-            'Check Room Exists',
-            'SELECT RoomName FROM RoomDetails WHERE RoomName = ?',
-            [roomName]
-        );
-
-        if (roomExists.length === 0) {
-            return res.status(404).json({ message: 'Not Found: 指定されたルームは存在しません' });
-        }
-
-        const alreadyJoined = await DBPerf(
-            'Check Already Joined',
-            'SELECT 1 FROM Rooms WHERE UserID = ? AND RoomName = ?',
-            [userId, roomName]
-        );
-
-        if (alreadyJoined.length > 0) {
-            return res.status(409).json({ message: 'Conflict: 既にこのルームに所属しています' });
-        }
-
-        await DBPerf(
-            'Insert Room Member',
-            'INSERT INTO Rooms (UserID, RoomName) VALUES (?, ?)',
-            [userId, roomName]
-        );
-
-        return res.status(201).json({ message: 'ルーム参加が完了しました' });
-    } catch (err) {
-        console.error('JoinRoom-API Error:', err);
-        return res.status(500).json({ message: 'Internal Server Error' });
+    // =====================================
+    // 1. RoomName, RoomPasswordを受け取る
+    // =====================================
+    const userId = req.auth.userId;
+    const roomName = req.body?.roomName;
+    if (!userId || !roomName || !roomPassword) {
+        return res.status(400).json({ message: 'Bad Request: userIdかroomNameかroomPasswordが不足しています。' });
     }
+
+    // =============================================================================
+    // 2. RoomNameがちゃんと存在しているか、まだ属していないかを確認し、Roomに参加する
+    // =============================================================================
+    // RoomNameがちゃんと存在しているかの確認
+    const roomExists = await DBPerf(
+        'Check Room Exists',
+        'SELECT RoomName FROM RoomDetails WHERE RoomName = ?',
+        [roomName]
+    );
+    if (roomExists.length === 0) {
+        return res.status(404).json({ message: 'Not Found: 指定されたルームは存在しません' });
+    }
+    // そのRoomにまだ属していないかを確認する
+    const alreadyJoined = await DBPerf(
+        'Check Already Joined',
+        'SELECT 1 FROM Rooms WHERE UserID = ? AND RoomName = ?',
+        [userId, roomName]
+    );
+    if (alreadyJoined.length > 0) {
+        return res.status(409).json({ message: 'Conflict: 既にこのルームに所属しています' });
+    }
+    // Roomに参加する
+    await DBPerf(
+        'Insert Room Member',
+        'INSERT INTO Rooms (UserID, RoomName) VALUES (?, ?)',
+        [userId, roomName]
+    );
+
+    // ==============================
+    // 3. Shutdown Log
+    // ==============================
+    console.log(`\n[${logOwner}] Shutdown!\n`);
+    return res.status(201).json({ message: 'ルーム参加が完了しました' });
 });
 
+// Routerエクスポート
 export default router;

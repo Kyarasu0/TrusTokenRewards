@@ -1,53 +1,23 @@
-// ==========================
-// 標準・外部モジュールの読み込み
-// ==========================
-
+// 標準モジュール読み込み
 import express from 'express';              // Expressフレームワーク
 import path from 'path';                    // パス操作用
-import dotenv from 'dotenv';                // .env読み込み
 import cookieParser from 'cookie-parser';   // Cookie解析
-import argon2 from 'argon2';                // パスワードハッシュ化
 import { fileURLToPath } from 'url';        // ESMで__dirnameを再現するために必要
-
+import argon2 from 'argon2';                // パスワードハッシュ化
 // symbol-sdk v3
 import { SymbolFacade } from 'symbol-sdk/symbol';
 import { PrivateKey } from 'symbol-sdk';
-
-// ==========================
-// 自作ツールの読み込み
-// ※ ESMでは必ず拡張子 .js を付ける
-// ==========================
-
+// 自作モジュール読み込み
 import DBPerf from '../Tools/DBPerf.js';          // DB実行ラッパー
 import InverseVCM from '../Tools/InverseVCM.js';  // 未ログイン専用ミドルウェア
 import { encrypt } from '../Tools/AESControl.js'; // AES暗号化関数
 
-
-// ==========================
-// 環境変数の読み込み
-// ==========================
-
-dotenv.config();
-
-
-// ==========================
-// ESMでは__dirnameが存在しないため再生成
-// ==========================
-
+// __dirname 再生成
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
-// ==========================
 // Express Router初期化
-// ==========================
-
 const router = express.Router();
-
-
-// ==========================
-// ミドルウェア設定
-// ==========================
 
 // Cookieをreq.cookiesで扱えるようにする
 router.use(cookieParser());
@@ -55,172 +25,156 @@ router.use(cookieParser());
 // JSONボディを解析可能にする
 router.use(express.json());
 
-// =====================================================================
-// 画面表示API
-// =====================================================================
-
+// ==========================
+// 画面表示ルート
+// GET /Register/
+// ==========================
 router.get(
   '/',
-  // 既にログインしている場合はアクセス拒否するミドルウェア
   InverseVCM('LOGIN_TOKEN', process.env.LOGIN_SECRET),
-
   (req, res) => {
-    console.log("/Register-API is running");
+    // ==========================
+    // 0. Startup Log
+    // ==========================
+    const logOwner = "/Register/";
+    console.log(`\n[${logOwner}] ${logOwner}-API is running!\n`);
+    // ==========================
+    // 1. Shutdown Log
+    // ==========================
+    console.log(`\n[${logOwner}] Shutdown!\n`);
 
-    // フロントエンドのビルド済みHTMLを返す
-    res.sendFile(
-      path.join(__dirname, "..", "..", "..", "Frontend", "dist", "index.html")
-    );
+    // ページを配って終了
+    res.sendFile( path.join(__dirname, "..", "..", "..", "Frontend", "dist", "index.html") );
   }
 );
 
 
-// =====================================================================
-// ユーザー登録処理
-// =====================================================================
-
+// ==========================
+// 登録処理ルート
+// POST /Register/Submit
+// ==========================
 router.post(
   '/Submit',
-
   // ログイン済みなら拒否
   InverseVCM('LOGIN_TOKEN', process.env.LOGIN_SECRET),
-
   async (req, res) => {
 
-    console.log("Submit-API is running");
+    // ==========================
+    // 0. Startup Log
+    // ==========================
+    const logOwner = "/Register/Submit";
+    console.log(`\n[${logOwner}] ${logOwner}-API is running!\n`);
 
-    try {
-
-      // ==========================
-      // 入力値取得
-      // ==========================
-
-      const { userId, password } = req.body;
-
-      // 必須項目チェック
-      if (!userId || !password) {
-        return res.status(400).json({
-          message: "Bad Request: UserIDかPasswordが不足しています。"
-        });
-      }
-
-      // ==========================
-      // ユーザー重複チェック
-      // ==========================
-
-      const exist = await DBPerf(
-        "Duplicate Check For UserID",
-        "SELECT * FROM Identify WHERE UserID = ?",
-        [userId]
-      );
-
-      if (exist.length > 0) {
-        return res.status(409).json({
-          message: "Conflict: このユーザーIDはすでに使われています"
-        });
-      }
-
-
-      // =====================================================
-      // 1. Symbolブロックチェーン用アカウント生成
-      // =====================================================
-      const facade = new SymbolFacade('testnet');
-
-      const privateKey = PrivateKey.random();
-      const account    = facade.createAccount(privateKey);
-      const address    = account.address.toString();
-      const privateKeyString = privateKey.toString();
-
-      console.log("秘密鍵:", privateKeyString);
-      console.log("アドレス:", address);
-
-      // =====================================================
-      // 2. パスワード + Pepper 処理
-      // =====================================================
-
-      const pepper = process.env.PEPPER;
-
-      if (!pepper) {
-        return res.status(500).json({
-          message: "Internal Server Error: サーバー設定エラー"
-        });
-      }
-
-      // パスワード + Pepper
-      // PepperはDBに保存しないサーバー専用秘密値
-      const passwordWithPepper = password + pepper;
-      console.log("パスワードとペッパーを結合した文字列:", passwordWithPepper);
-
-      const encryptPassword = encrypt(process.env.PEPPER, password);
-      console.log("暗号化されたパスワード:", encryptPassword);
-
-
-      // =====================================================
-      // 3. 秘密鍵をAES暗号化
-      // =====================================================
-
-      // ユーザーのパスワードから復号可能にする設計
-      const encryptedPrivateKey =
-        JSON.stringify(
-        encrypt(passwordWithPepper, privateKeyString)
-    );
-    console.log("暗号化された秘密鍵オブジェクト:", privateKeyString);
-    console.log("暗号化された秘密鍵:", encryptedPrivateKey);
-
-      // =====================================================
-      // 4. パスワードをArgon2でハッシュ化
-      // =====================================================
-
-      const hashedPassword = await argon2.hash(passwordWithPepper, {
-        type: argon2.argon2id,  // 現在推奨方式
-        memoryCost: 2 ** 16,   // 64MB
-        timeCost: 5,           // 計算回数
-        parallelism: 1
-      });
-
-      // 4. Cookie発行
-      CreateCookie({
-        res,
-        cookieName: 'LOGIN_TOKEN',
-        payload: { userId, address: address },
-        secretKey: process.env.LOGIN_SECRET,
-        deadlineHours: 24, // 1日有効
-        httpOnly: true,
-        sameSite: 'strict'
-      });
-
-
-      // =====================================================
-      // 5. DB保存
-      // =====================================================
-
-      await DBPerf(
-        "Insert Into Identify",
-        "INSERT INTO Identify (UserID, Password, PrivateKey, Address) VALUES (?, ?, ?, ?)",
-        [userId, hashedPassword, encryptedPrivateKey, address]
-      );
-
-
-      // =====================================================
-      // 登録成功
-      // =====================================================
-
-      res.json({ privateKey: privateKey });
-
-    } catch (err) {
-
-      console.error("Register Error:", err);
-
-      res.status(500).json({
-        message: "Internal Server Error: サーバーエラーが発生しました。"
+    // ==============================
+    // 1. UserID, Passwordを受け取る
+    // ==============================
+    const { userId, password } = req.body;
+    if (!userId || !password) {
+      return res.status(400).json({
+        message: "Bad Request: UserIDかPasswordが不足しています。"
       });
     }
+
+    // ========================================
+    // 2. UserIDが既に存在していないかを確認する
+    // ========================================
+    const exist = await DBPerf(
+      "Duplicate Check For UserID",
+      "SELECT * FROM Identify WHERE UserID = ?",
+      [userId]
+    );
+    if (exist.length > 0) {
+      return res.status(409).json({
+        message: "Conflict: このユーザーIDはすでに使われています"
+      });
+    }
+
+    // ==========================================
+    // 3. Symbolブロックチェーン用アカウント生成
+    // ==========================================
+    // ファサードのインスタンス作成
+    const facade = new SymbolFacade('testnet');
+    // 秘密鍵の作成
+    const privateKey = PrivateKey.random();
+    // アカウントの作成
+    const account    = facade.createAccount(privateKey);
+    // アドレスを計算
+    const address    = account.address.toString();
+    // 秘密鍵を計算
+    const privateKeyString = privateKey.toString();
+    // 確認用ログ表示
+    console.log(`[${logOwner}] Step3 Log: Symbolブロックチェーン用アカウント生成`);
+    console.log("秘密鍵:", privateKeyString);
+    console.log("アドレス:", address);
+
+    // ============================
+    // 4. Password + Pepper の作成
+    // ============================
+    // ペッパーの読み込み
+    const pepper = process.env.PEPPER;
+    if (!pepper) {
+      return res.status(500).json({
+        message: "Internal Server Error: サーバー設定エラー"
+      });
+    }
+    // Password + Pepper
+    // PepperはDBに保存しないサーバー専用秘密値
+    const passwordWithPepper = password + pepper;
+    // NFC登録のときに必要
+    // const encryptPassword = encrypt(process.env.PEPPER, password);
+    console.log(`[${logOwner}] Step4 Log: Passwordを使った秘密鍵の暗号化とPasswordのHash化`);
+    console.log("Password + Pepper: ", passwordWithPepper);
+
+    // ========================================
+    // 5. 秘密鍵をPassword + PepperでAES暗号化
+    // ========================================
+    // ユーザーのパスワードから復号可能にする設計
+    const encryptedPrivateKey = JSON.stringify( 
+      encrypt(passwordWithPepper, privateKeyString)
+    );
+    console.log(`[${logOwner}] Step5 Log: 秘密鍵をPassword + PepperでAES暗号化`);
+    console.log("秘密鍵: ", privateKeyString);
+    console.log("暗号化された秘密鍵: ", encryptedPrivateKey);
+
+    // =============================
+    // 6. PasswordをArgon2でHash化
+    // =============================
+    const hashedPassword = await argon2.hash(passwordWithPepper, {
+      type: argon2.argon2id,  // 現在推奨方式
+      memoryCost: 2 ** 16,   // 64MB
+      timeCost: 5,           // 計算回数
+      parallelism: 1
+    });
+
+    // =============================
+    // 7. Cookieを発行
+    // =============================
+    CreateCookie({
+      res,
+      cookieName: 'LOGIN_TOKEN',
+      payload: { userId, address: address },
+      secretKey: process.env.LOGIN_SECRET,
+      deadlineHours: 24, // 1日有効
+      httpOnly: true,
+      sameSite: 'strict'
+    });
+
+    // ================
+    // 8. DB保存
+    // ================
+    await DBPerf(
+      "Insert Into Identify",
+      "INSERT INTO Identify (UserID, Password, PrivateKey, Address) VALUES (?, ?, ?, ?)",
+      [userId, hashedPassword, encryptedPrivateKey, address]
+    );
+
+    // ===================
+    // 9. Shutdown Log
+    // ===================
+    console.log(`\n[${logOwner}] Shutdown!\n`);
+    return res.json({ privateKey: privateKey });
   }
 );
 
-
-// ==========================
 // Routerエクスポート
-// ==========================
-
 export default router;
