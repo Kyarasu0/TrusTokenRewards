@@ -104,7 +104,7 @@ router.post(
         console.log(`\n[${logOwner}] ${logOwner}-API is running!\n`);
 
         // =================================================================================
-        // 1. roomName, roomDiscription, roomPassword, mosaicName, userPassword を受け取る
+        // 1. userId, roomName, roomDiscription, roomPassword, mosaicName, userPassword を受け取る
         // =================================================================================
         const userId = req.auth.userId;
         const { roomName, roomDiscription, roomPassword, mosaicName, userPassword } = req.body;
@@ -127,7 +127,7 @@ router.post(
             [userId]
         );
         const encryptedPrivateKeyObj = JSON.parse(OwnerInfor[0].PrivateKey);
-        const privateKey = decrypt(inputPassword + process.env.PEPPER, encryptedPrivateKeyObj);
+        const privateKey = decrypt(userPassword + process.env.PEPPER, encryptedPrivateKeyObj);
 
         try{
             // ==============================
