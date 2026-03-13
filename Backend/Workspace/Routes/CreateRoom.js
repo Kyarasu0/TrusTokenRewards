@@ -112,10 +112,6 @@ router.post(
             return res.status(400).json({
                 message: "Bad Request: 情報が不足しています。"
             });
-        }else if (!req.files?.roomIcon){
-            return res.status(400).json({
-                message: "Bad Request: ルーム用のアイコンが不足しています。"
-            });
         }
 
         // ==============================
@@ -184,7 +180,7 @@ router.post(
             // ==============================
             // 5. 渡された情報の保存
             // ==============================
-            const roomIconPath = await SaveIcon(req.files.roomIcon[0], "Rooms");
+            const roomIconPath = req.files?.roomIcon ? SaveIcon(req.files.roomIcon[0], "Rooms") : null;
             // 1. MosaicのDB登録
             await DBPerf(
                 "INSERT Mosaic",
