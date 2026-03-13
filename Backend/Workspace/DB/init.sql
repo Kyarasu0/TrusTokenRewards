@@ -35,6 +35,7 @@ CREATE TABLE Projects (
     ProjectsID      INT AUTO_INCREMENT PRIMARY KEY,
     UserID          VARCHAR(255) NOT NULL,
     RoomName        VARCHAR(100) NOT NULL,
+    CreateDate      DATETIME NOT NULL,
     Content         TEXT NOT NULL,
     FOREIGN KEY (UserID) REFERENCES Identify(UserID)
         ON DELETE CASCADE,
