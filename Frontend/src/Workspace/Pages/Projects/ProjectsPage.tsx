@@ -1,12 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
-import { PROJECT_DATA } from '../../data/rooms';
-import type { ProjectData } from '../../data/rooms';
 import Header from '../../Components/organisms/Header/Header';
 import ProjectCard from '../../Components/organisms/ProjectCard/ProjectCard';
 import PrimaryButton from '../../Components/atoms/Button/PrimaryButton';
 import styles from './ProjectsPage.module.css';
 import { useParams } from "react-router-dom";
+import { useEffect } from 'react';
+import { useState } from 'react';
 
 interface Props {
   showToast: (msg: string) => void;
@@ -20,18 +20,39 @@ interface Props {
  */
 export default function ProjectsPage({ showToast, onLogout }: Props) {
   const navigate = useNavigate();
+  const [projects, setProjects] = useState<any[]>([]);
+
+  const { RoomName } = useParams();
+
+  useEffect(() => {
+    async function fetchProjects(){
+      try {
+        const res = await fetch(`/Rooms?roomName=${RoomName}`, {
+          method: "GET",
+          credentials: "include",
+        })
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        const data = await res.json();
+        setProjects(data.ProjectList ?? []);
+
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
+    }
+    fetchProjects();
+  }, [RoomName]);
 
   // 投稿をクリックして詳細画面へ遷移
-  const handleSelectProject = (project: ProjectData) => {
-    navigate(`/Rooms/${RoomName}/${project.id}`, { state: { project } });
+  const handleSelectProject = (project: any) => {
+    navigate(`/Rooms/${RoomName}/${project.ProjectID}`, { state: { project } });
   };
 
   // 投稿作成画面へ遷移（後で実装）
   const handleCreateProject = () => {
-    navigate(`/CreateProject`);
+    navigate('/CreateProject', { state: { roomName: RoomName ?? '' } });
   };
-
-  const { RoomName } = useParams();
 
   return (
     <>
@@ -57,9 +78,9 @@ export default function ProjectsPage({ showToast, onLogout }: Props) {
 
         {/* 投稿一覧 */}
         <div className={styles.projectsList}>
-          {PROJECT_DATA.map((project) => (
+          {projects.map((project) => (
             <ProjectCard
-              key={project.id}
+              key={project.ProjectID}
               project={project}
               onClick={() => handleSelectProject(project)}
             />

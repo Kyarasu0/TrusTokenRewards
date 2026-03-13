@@ -4,6 +4,7 @@ import Header from '../../Components/organisms/Header/Header';
 import PrimaryButton from '../../Components/atoms/Button/PrimaryButton';
 import TextArea from '../../Components/atoms/TextArea/TextArea';
 import styles from './CreateProjectPage.module.css';
+import { useLocation } from "react-router-dom";
 
 interface Props {
   showToast: (msg: string) => void;
@@ -17,14 +18,41 @@ interface Props {
  */
 export default function CreateProjectPage({ showToast, onLogout }: Props) {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const roomName  = location.state as { roomName: string } | undefined;
 
   // フォーム送信時の処理
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
-    showToast('成果を投稿しました！');
-    // 実際にはAPIで検証して、ホームページへリダイレクト
-    navigate('/Projects');
-  };
+    const form = e.target as HTMLFormElement;
+
+    try{
+    const res = await fetch("/CreateProject/Submit", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        roomName: roomName?.roomName ?? '',
+        content: form.Content.value,
+      }),
+    });
+
+    if(!res.ok) {
+      const errorData = await res.json();
+      showToast(`投稿に失敗しました: ${errorData.message}`);
+      return;
+    }
+
+      showToast('成果を投稿しました！');
+      navigate(`/Rooms/${roomName?.roomName ?? ''}`);
+    } catch (error) {
+      console.error("Error submitting project:", error);
+      showToast('投稿に失敗しました。もう一度お試しください。');
+    }
+  }
 
   return (
     <>
@@ -55,6 +83,7 @@ export default function CreateProjectPage({ showToast, onLogout }: Props) {
             <div className={styles.fieldGroup}>
               <label className={styles.label}>成果内容 *</label>
               <TextArea
+                name="Content"
                 placeholder="どんな成果を出しましたか？"
                 rows={6}
                 required

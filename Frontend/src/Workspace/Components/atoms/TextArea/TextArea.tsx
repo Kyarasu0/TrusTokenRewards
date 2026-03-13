@@ -1,15 +1,17 @@
 import styles from "./TextArea.module.css";
 
 interface Props {
+  name?: string;
   placeholder?: string;
   required?: boolean;
   rows?: number;
 }
 
 export default function TextArea({
+  name,
   placeholder,
   required = false,
-  rows = 5
+  rows = 5,
 }: Props) {
   return (
     <textarea
@@ -17,6 +19,7 @@ export default function TextArea({
       placeholder={placeholder}
       required={required}
       rows={rows}
+      name={name}
     />
   );
 }
