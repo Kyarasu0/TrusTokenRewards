@@ -1,8 +1,11 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
+
 import Header from '../../Components/organisms/Header/Header';
 import PrimaryButton from '../../Components/atoms/Button/PrimaryButton';
 import TextArea from '../../Components/atoms/TextArea/TextArea';
+
 import styles from './CreateProjectPage.module.css';
 
 interface Props {
@@ -12,18 +15,49 @@ interface Props {
 
 /**
  * CreateProject ページ
- * 既存のルームに参加するためのフォーム。
- * ルーム名とパスワードを入力して参加します。
+ * 成果を投稿するフォーム。
  */
 export default function CreateProjectPage({ showToast, onLogout }: Props) {
-  const navigate = useNavigate();
 
-  // フォーム送信時の処理
-  const handleSubmit = (e: React.FormEvent) => {
+  const navigate = useNavigate();
+  const { RoomName } = useParams();
+
+  const [content, setContent] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+
     e.preventDefault();
-    showToast('成果を投稿しました！');
-    // 実際にはAPIで検証して、ホームページへリダイレクト
-    navigate('/Projects');
+
+    if (!RoomName) {
+      showToast("RoomNameが取得できません");
+      return;
+    }
+
+    const res = await fetch(`/Rooms/${RoomName}/CreateProject`, {
+
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify({
+        content
+      })
+
+    });
+
+    if (!res.ok) {
+
+      showToast("投稿失敗");
+      return;
+
+    }
+
+    showToast("成果を投稿しました");
+
+    navigate(`/Projects/${RoomName}`);
+
   };
 
   return (
@@ -31,19 +65,23 @@ export default function CreateProjectPage({ showToast, onLogout }: Props) {
       <Header onLogout={onLogout} showToast={showToast} />
 
       <main className={styles.container}>
+
         <div className={styles.return}>
-            {/* 戻るボタン */}
-            <button
+
+          <button
             className={styles.backButton}
             onClick={() => navigate(-1)}
             title="戻る"
-            >
+          >
             <ArrowLeft size={24} />
-            </button>
+          </button>
+
         </div>
 
         <div className={styles.formCard}>
+
           <h1 className={styles.title}>成果を投稿</h1>
+
           <p className={styles.subtitle}>
             自分の成果をルームメンバーに共有しましょう。
             <br />
@@ -51,22 +89,31 @@ export default function CreateProjectPage({ showToast, onLogout }: Props) {
           </p>
 
           <form onSubmit={handleSubmit} className={styles.form}>
-            {/* 成果内容 */}
+
             <div className={styles.fieldGroup}>
-              <label className={styles.label}>成果内容 *</label>
+
+              <label className={styles.label}>
+                成果内容 *
+              </label>
+
               <TextArea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
                 placeholder="どんな成果を出しましたか？"
                 rows={6}
                 required
               />
+
             </div>
 
-            {/* 投稿ボタン */}
             <PrimaryButton type="submit">
               成果を投稿する
             </PrimaryButton>
+
           </form>
+
         </div>
+
       </main>
     </>
   );

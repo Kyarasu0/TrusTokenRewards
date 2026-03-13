@@ -1,42 +1,69 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Coins } from 'lucide-react';
-import type { ProjectData } from '../../data/rooms';
+
 import Header from '../../Components/organisms/Header/Header';
 import PrimaryButton from '../../Components/atoms/Button/PrimaryButton';
 import TextInput from '../../Components/atoms/Input/TextInput';
+
+import { getProjectDetail } from '../../Functions/GetProjectDetail';
+
+import type { ProjectDetailData } from '../../data/projects';
+
 import styles from './ProjectDetailPage.module.css';
-// import { useParams } from "react-router-dom";
 
 interface Props {
   showToast: (msg: string) => void;
   onLogout: () => void;
 }
 
-/**
- * ProjectDetail ページ
- * 投稿の詳細と送金機能を表示します。
- * - 投稿内容
- * - 過去の送金履歴
- * - 秘密鍵と送金料の入力欄
- */
 export default function ProjectDetailPage({ showToast, onLogout }: Props) {
+
   const navigate = useNavigate();
-  const location = useLocation();
-  const project = location.state?.project as ProjectData | undefined;
+  const { RoomName, ProjectID } = useParams();
+
+  const [project, setProject] = useState<ProjectDetailData | null>(null);
+
+  useEffect(() => {
+
+    const load = async () => {
+
+      try {
+
+        if (!RoomName || !ProjectID) return;
+
+        const data = await getProjectDetail(RoomName, Number(ProjectID));
+
+        setProject(data);
+
+      } catch {
+
+        showToast("投稿取得に失敗しました");
+
+      }
+
+    };
+
+    load();
+
+  }, [RoomName, ProjectID]);
+
 
   if (!project) {
     return (
       <>
         <Header onLogout={onLogout} showToast={showToast} />
-        <div style={{ padding: '40px' }}>投稿が見つかりません</div>
+        <div style={{ padding: "40px" }}>投稿を読み込み中...</div>
       </>
     );
   }
 
-  // 秘密鍵を入力して送金
   const handleSendToken = (e: React.FormEvent) => {
+
     e.preventDefault();
-    showToast('トークンを送信しました！');
+
+    showToast("トークン送信機能は次で実装");
+
   };
 
   return (
@@ -44,25 +71,34 @@ export default function ProjectDetailPage({ showToast, onLogout }: Props) {
       <Header onLogout={onLogout} showToast={showToast} />
 
       <main className={styles.container}>
-        {/* 戻るボタン */}
+
+        {/* 戻る */}
         <button
           className={styles.backButton}
-          onClick={() => navigate('/Projects')}
-          title="戻る"
+          onClick={() => navigate(-1)}
         >
           <ArrowLeft size={24} />
         </button>
 
-        {/* 投稿本体 */}
+        {/* 投稿 */}
         <div className={styles.projectBox}>
+
           <div className={styles.authorHeader}>
+
             <div>
-              <div className={styles.authorName}>{project.authorName}</div>
+              <div className={styles.authorName}>
+                {project.authorName}
+              </div>
+
               <div className={styles.roomInfo}>
                 {project.roomName}
               </div>
-              <div className={styles.timestamp}>{project.timestamp}</div>
+
+              <div className={styles.timestamp}>
+                {project.timestamp}
+              </div>
             </div>
+
           </div>
 
           <div className={styles.content}>
@@ -70,59 +106,98 @@ export default function ProjectDetailPage({ showToast, onLogout }: Props) {
           </div>
 
           <div className={styles.stats}>
+
             <div className={styles.stat}>
-              <Coins size={20} />
+              <Coins size={20}/>
               <span>受け取った通貨: {project.totalReceived}</span>
             </div>
+
             <div className={styles.stat}>
-              <span>応援: {project.transactions?.length ?? 0} 件</span>
+              <span>応援: {project.transactions.length} 件</span>
             </div>
+
           </div>
+
         </div>
 
-        {/* 送金履歴セクション */}
+        {/* 送金履歴 */}
         <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>応援履歴</h2>
+
+          <h2 className={styles.sectionTitle}>
+            応援履歴
+          </h2>
+
           <div className={styles.transactionsList}>
-            {project.transactions && project.transactions.length > 0 ? (
-              project.transactions.map((tx) => (
-                <div key={tx.id} className={styles.transactionItem}>
-                  <div className={styles.txContent}>
-                    <div className={styles.senderName}>{tx.senderName}</div>
-                    <div className={styles.txTime}>{tx.timestamp}</div>
-                  </div>
-                  <div className={styles.txAmount}>+{tx.amount}</div>
-                </div>
-              ))
-            ) : (
+
+            {project.transactions.length === 0 && (
               <div className={styles.noTransactions}>
-                まだ応援がありません。最初の応援者になりましょう！
+                まだ応援がありません
               </div>
             )}
+
+            {project.transactions.map(tx => (
+
+              <div key={tx.id} className={styles.transactionItem}>
+
+                <div className={styles.txContent}>
+
+                  <div className={styles.senderName}>
+                    {tx.senderName}
+                  </div>
+
+                  <div className={styles.txTime}>
+                    {tx.timestamp}
+                  </div>
+
+                  <div>
+                    {tx.content}
+                  </div>
+
+                </div>
+
+                <div className={styles.txAmount}>
+                  +{tx.amount}
+                </div>
+
+              </div>
+
+            ))}
+
           </div>
+
         </div>
 
-        {/* トークン送信フォーム */}
+        {/* トークン送信 */}
         <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>応援を送る</h2>
+
+          <h2 className={styles.sectionTitle}>
+            応援を送る
+          </h2>
+
           <form onSubmit={handleSendToken} className={styles.form}>
+
             <TextInput
               type="password"
-              placeholder="パスワードを入力"
+              placeholder="パスワード"
               required
             />
+
             <TextInput
               type="number"
-              placeholder="送金料を入力"
+              placeholder="送金量"
               min="1"
               required
             />
+
             <PrimaryButton type="submit">
-              <Coins size={18} />
-              <span>トークンを送信</span>
+              <Coins size={18}/>
+              <span>トークン送信</span>
             </PrimaryButton>
+
           </form>
+
         </div>
+
       </main>
     </>
   );
