@@ -53,6 +53,7 @@ router.post(
     // =====================================
     const userId = req.auth.userId;
     const roomName = req.body?.roomName;
+    const roomPassword = req.body?.roomPassword;
     if (!userId || !roomName || !roomPassword) {
         return res.status(400).json({ message: 'Bad Request: userIdかroomNameかroomPasswordが不足しています。' });
     }
@@ -69,6 +70,7 @@ router.post(
     if (roomExists.length === 0) {
         return res.status(404).json({ message: 'Not Found: 指定されたルームは存在しません' });
     }
+
     // そのRoomにまだ属していないかを確認する
     const alreadyJoined = await DBPerf(
         'Check Already Joined',
@@ -89,7 +91,7 @@ router.post(
     // 3. Shutdown Log
     // ==============================
     console.log(`\n[${logOwner}] Shutdown!\n`);
-    return res.redirect("/Home");
+    return res.status(200).json({ message: 'ルームに参加しました！' });
 });
 
 // Routerエクスポート
