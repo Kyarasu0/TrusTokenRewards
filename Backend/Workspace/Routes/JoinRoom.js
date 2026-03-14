@@ -53,7 +53,7 @@ router.post(
     // =====================================
     const userId = req.auth.userId;
     const roomName = req.body?.roomName;
-    const roomPassword = req.body?.password;
+    const roomPassword = req.body?.roomPassword;
     if (!userId || !roomName || !roomPassword) {
         return res.status(400).json({ message: 'Bad Request: userIdかroomNameかroomPasswordが不足しています。' });
     }

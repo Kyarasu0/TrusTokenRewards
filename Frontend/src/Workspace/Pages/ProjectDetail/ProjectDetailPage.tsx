@@ -1,13 +1,7 @@
-
 import { ArrowLeft, Coins } from 'lucide-react';
 import Header from '../../Components/organisms/Header/Header';
 import PrimaryButton from '../../Components/atoms/Button/PrimaryButton';
 import TextInput from '../../Components/atoms/Input/TextInput';
-
-import { getProjectDetail } from '../../Functions/GetProjectDetail';
-
-import type { ProjectDetailData } from '../../data/projects';
-
 import styles from './ProjectDetailPage.module.css';
 import { useEffect } from 'react';
 import { useParams } from "react-router-dom";
@@ -19,8 +13,14 @@ interface Props {
   onLogout: () => void;
 }
 
+/**
+ * ProjectDetail ページ
+ * 投稿の詳細と送金機能を表示します。
+ * - 投稿内容
+ * - 過去の送金履歴
+ * - 秘密鍵と送金料の入力欄
+ */
 export default function ProjectDetailPage({ showToast, onLogout }: Props) {
-
   const navigate = useNavigate();
   const { RoomName, ProjectID }= useParams();
   const [project, setProject] = useState<any>(null);
@@ -52,7 +52,7 @@ export default function ProjectDetailPage({ showToast, onLogout }: Props) {
     return (
       <>
         <Header onLogout={onLogout} showToast={showToast} />
-        <div style={{ padding: "40px" }}>投稿を読み込み中...</div>
+        <div style={{ padding: '40px' }}>投稿が見つかりません</div>
       </>
     );
   }
@@ -96,27 +96,24 @@ export default function ProjectDetailPage({ showToast, onLogout }: Props) {
       <Header onLogout={onLogout} showToast={showToast} />
 
       <main className={styles.container}>
-
-        {/* 戻る */}
+        {/* 戻るボタン */}
         <button
           className={styles.backButton}
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/Projects')}
+          title="戻る"
         >
           <ArrowLeft size={24} />
         </button>
 
-        {/* 投稿 */}
+        {/* 投稿本体 */}
         <div className={styles.projectBox}>
-
           <div className={styles.authorHeader}>
-
             <div>
               <div className={styles.authorName}>{project.UserID}</div>
               <div className={styles.roomInfo}>
               </div>
               <div className={styles.timestamp}>{project.CreateDate.slice(0, 16).replace("T"," ")}</div>
             </div>
-
           </div>
 
           <div className={styles.content}>
@@ -124,27 +121,19 @@ export default function ProjectDetailPage({ showToast, onLogout }: Props) {
           </div>
 
           <div className={styles.stats}>
-
             <div className={styles.stat}>
               <Coins size={20} />
               <span>受け取った通貨: {project.TotalAmount ?? 0}</span>
             </div>
-
             <div className={styles.stat}>
               <span>応援: {project.TxCount ?? 0} 件</span>
             </div>
-
           </div>
-
         </div>
 
-        {/* 送金履歴 */}
+        {/* 送金履歴セクション */}
         <div className={styles.section}>
-
-          <h2 className={styles.sectionTitle}>
-            応援履歴
-          </h2>
-
+          <h2 className={styles.sectionTitle}>応援履歴</h2>
           <div className={styles.transactionsList}>
             {projectDetails && projectDetails.length > 0 ? (
               projectDetails.map((tx) => (
@@ -158,62 +147,26 @@ export default function ProjectDetailPage({ showToast, onLogout }: Props) {
               ))
             ) : (
               <div className={styles.noTransactions}>
-                まだ応援がありません
+                まだ応援がありません。最初の応援者になりましょう！
               </div>
             )}
-
-            {project.transactions.map(tx => (
-
-              <div key={tx.id} className={styles.transactionItem}>
-
-                <div className={styles.txContent}>
-
-                  <div className={styles.senderName}>
-                    {tx.senderName}
-                  </div>
-
-                  <div className={styles.txTime}>
-                    {tx.timestamp}
-                  </div>
-
-                  <div>
-                    {tx.content}
-                  </div>
-
-                </div>
-
-                <div className={styles.txAmount}>
-                  +{tx.amount}
-                </div>
-
-              </div>
-
-            ))}
-
           </div>
-
         </div>
 
-        {/* トークン送信 */}
+        {/* トークン送信フォーム */}
         <div className={styles.section}>
-
-          <h2 className={styles.sectionTitle}>
-            応援を送る
-          </h2>
-
+          <h2 className={styles.sectionTitle}>応援を送る</h2>
           <form onSubmit={handleSendToken} className={styles.form}>
-
             <TextInput
               name="Password"
               type="password"
-              placeholder="パスワード"
+              placeholder="パスワードを入力"
               required
             />
-
             <TextInput
               name="Amount"
               type="number"
-              placeholder="送金量"
+              placeholder="送金料を入力"
               min="1"
               required
             />
@@ -221,11 +174,8 @@ export default function ProjectDetailPage({ showToast, onLogout }: Props) {
               <Coins size={18} />
               <span>{isSending ? '送金中...' : 'トークンを送信'}</span>
             </PrimaryButton>
-
           </form>
-
         </div>
-
       </main>
     </>
   );
