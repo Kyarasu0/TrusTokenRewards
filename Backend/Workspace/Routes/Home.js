@@ -69,11 +69,9 @@ router.get('/RoomList', VCM('LOGIN_TOKEN', process.env.LOGIN_SECRET), async (req
         "Show Rooms",
         `SELECT 
             rd.RoomName,
-            rd.RoomIconPath,
-            m.MosaicID
+            rd.RoomIconPath
         FROM RoomDetails rd
         JOIN Rooms r ON rd.RoomName = r.RoomName
-        JOIN Mosaic m ON rd.MosaicName = m.MosaicName
         WHERE r.UserID = ?`,
         [userId]
     );
@@ -85,8 +83,14 @@ router.get('/RoomList', VCM('LOGIN_TOKEN', process.env.LOGIN_SECRET), async (req
             "SELECT Count(*) FROM Rooms WHERE RoomName = ?;",
             [v.RoomName]
         );
+        const MosaicIDResult = await DBPerf(
+            "Get MosaicID",
+            "SELECT MosaicID FROM Mosaic m JOIN RoomDetails rd ON m.MosaicName = rd.MosaicName WHERE rd.RoomName = ?;",
+            [v.RoomName]
+        );
+        const MosaicID = MosaicIDResult[0].MosaicID;
         const nodeUrl = 'https://sym-test-01.opening-line.jp:3001';
-        const balance = await LeftTokenAmount(userAddress, v.MosaicID, nodeUrl);
+        const balance = await LeftTokenAmount(userAddress, MosaicID, nodeUrl);
         resultList.push({ 
             roomName: v.RoomName, 
             roomIconPath: v.RoomIconPath, 

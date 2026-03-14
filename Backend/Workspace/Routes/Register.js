@@ -9,7 +9,6 @@ import { SymbolFacade } from 'symbol-sdk/symbol';
 import { PrivateKey } from 'symbol-sdk';
 // 自作モジュール読み込み
 import DBPerf from '../Tools/DBPerf.js';          // DB実行ラッパー
-import InverseVCM from '../Tools/InverseVCM.js';  // 未ログイン専用ミドルウェア
 import { encrypt } from '../Tools/AESControl.js'; // AES暗号化関数
 import CreateCookie from '../Tools/CreateCookie.js';
 
@@ -32,7 +31,6 @@ router.use(express.json());
 // ==========================
 router.get(
   '/',
-  InverseVCM('LOGIN_TOKEN', process.env.LOGIN_SECRET),
   (req, res) => {
     // ==========================
     // 0. Startup Log
@@ -56,8 +54,6 @@ router.get(
 // ==========================
 router.post(
   '/Submit',
-  // ログイン済みなら拒否
-  InverseVCM('LOGIN_TOKEN', process.env.LOGIN_SECRET),
   async (req, res) => {
 
     // ==========================

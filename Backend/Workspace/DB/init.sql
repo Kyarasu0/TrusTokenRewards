@@ -14,6 +14,7 @@ CREATE TABLE Mosaic (
 
 CREATE TABLE RoomDetails (
     RoomName         VARCHAR(100) PRIMARY KEY,
+    RoomPassword     VARCHAR(255) NOT NULL,
     RoomIconPath     VARCHAR(255),
     MosaicName       VARCHAR(100) NOT NULL,
 
@@ -44,12 +45,14 @@ CREATE TABLE Projects (
 );
 
 CREATE TABLE ProjectDetails (
-    ProjectsID INT AUTO_INCREMENT PRIMARY KEY,
+    ProjectsID INT NOT NULL,
     fromUserID VARCHAR(255) NOT NULL,
     Date       DATETIME NOT NULL,
     Amount     INT NOT NULL,
-    TxID       TEXT NOT NULL,
+    TxID       VARCHAR(255) NOT NULL,
 
+    FOREIGN KEY (ProjectsID) REFERENCES Projects(ProjectsID)
+        ON DELETE CASCADE,
     FOREIGN KEY (fromUserID) REFERENCES Identify(UserID)
         ON DELETE CASCADE
 );
