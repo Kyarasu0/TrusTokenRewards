@@ -246,10 +246,23 @@ router.post(
             } catch (rollbackErr) {
                 console.error(`[${logOwner}] Rollback failed:`, rollbackErr);
             }
-            return res.status(500).json({
-                message: "ブロックチェーントランザクションに失敗しました。",
-                error: txErr.message
-            });
+
+                // エラー種別に応じたメッセージ
+                const errCode = txErr.message || "";
+                if (errCode.includes("Insufficient_Balance")) {
+                    return res.status(402).json({
+                        message: "XYMの残高が不足しています。テストネットのfaucetからXYMを受け取ってから再度お試しください。"
+                    });
+                }
+                if (errCode.includes("timeout")) {
+                    return res.status(504).json({
+                        message: "トランザクションの承認がタイムアウトしました。しばらく待ってから再度お試しください。"
+                    });
+                }
+                return res.status(500).json({
+                    message: "ブロックチェーントランザクションに失敗しました。",
+                    error: errCode
+                });
         }
 
         // ==============================
