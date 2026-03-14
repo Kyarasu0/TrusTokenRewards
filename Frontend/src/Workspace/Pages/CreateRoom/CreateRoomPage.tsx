@@ -46,13 +46,16 @@ export default function CreateRoomPage({ showToast, onLogout }: Props) {
         body: formData
       });
 
+      const data = await res.json();
       if (!res.ok) {
-        const err = await res.json();
-        showToast("ルーム作成に失敗しました: " + err.message);
+        showToast(data.message);
         return;
       }
 
-      showToast("ルームを作成しました！");
+      // 成功時もmessageがあれば表示
+      if (data.message) {
+        showToast(data.message);
+      }
       navigate("/Home");
 
     } catch (err) {
