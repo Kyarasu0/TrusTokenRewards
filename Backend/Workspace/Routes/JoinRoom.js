@@ -102,7 +102,7 @@ router.post(
     // 3. Shutdown Log
     // ==============================
     console.log(`\n[${logOwner}] Shutdown!\n`);
-    return res.redirect("/Home");
+    return res.status(200).json({ message: 'ルームに参加しました！' });
 });
 
 // Routerエクスポート

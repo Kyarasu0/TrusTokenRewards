@@ -5,8 +5,15 @@ interface Props {
   placeholder?: string;
   required?: boolean;
   rows?: number;
+  name?: string;
+  id?: string;
+  disabled?: boolean;
 }
 
+/**
+ * 再利用可能な TextArea コンポーネント
+ * value / onChange を受け取る controlled component として設計
+ */
 export default function TextArea({
   name,
   placeholder,
@@ -16,6 +23,8 @@ export default function TextArea({
   return (
     <textarea
       className={styles.textarea}
+      value={value}
+      onChange={onChange}
       placeholder={placeholder}
       required={required}
       rows={rows}

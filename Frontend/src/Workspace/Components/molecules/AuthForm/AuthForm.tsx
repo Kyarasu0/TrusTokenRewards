@@ -18,6 +18,8 @@ interface Props {
     role: string;
     onSuccess: (data: AuthResponse) => void;
     showToast: (msg: string) => void;
+  buttonLabel?: string;
+  onButtonClick?: () => void;
 }
 
 /*
@@ -25,14 +27,17 @@ interface Props {
 モジュール形式に分けることで、他ページでもフォーム部分だけを
 再利用しやすくしています（例えば別の認証ワークフローなど）。
  */
-export default function AuthForm({ onSuccess, showToast, role}: Props) {
+export default function AuthForm({ onSuccess, showToast, role, buttonLabel, onButtonClick }: Props) {
   const { ref, isVisible } = useFadeInUp();
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
+  const isActionMode = Boolean(onButtonClick);
 
   const handleSubmit = async (e: React.FormEvent) => {
     // HTMLのSubmit後の自動リロードを止める
     e.preventDefault();
+
+    if (isActionMode) return;
 
     try {
         const data = await Submit(`/${role}/Submit`, userId, password, showToast);
@@ -80,8 +85,8 @@ export default function AuthForm({ onSuccess, showToast, role}: Props) {
           icon={<Lock size={20} />}
         />
 
-        <PrimaryButton type="submit">
-          <span>{role}</span>
+        <PrimaryButton type={isActionMode ? "button" : "submit"} onClick={onButtonClick}>
+          <span>{buttonLabel ?? role}</span>
           <ArrowRight size={18} />
         </PrimaryButton>
       </form>

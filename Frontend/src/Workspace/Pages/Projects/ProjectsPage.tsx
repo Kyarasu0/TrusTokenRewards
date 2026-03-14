@@ -13,11 +13,6 @@ interface Props {
   onLogout: () => void;
 }
 
-/**
- * Projects ページ
- * 投稿（成果）がTwitter風に表示される画面。
- * タップするとプロジェクト詳細画面に遷移します。
- */
 export default function ProjectsPage({ showToast, onLogout }: Props) {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<any[]>([]);
@@ -48,7 +43,9 @@ export default function ProjectsPage({ showToast, onLogout }: Props) {
     navigate(`/Rooms/${RoomName}/${project.ProjectsID}`);
   };
 
-  // 投稿作成画面へ遷移（後で実装）
+  /**
+   * 成果作成
+   */
   const handleCreateProject = () => {
     navigate('/CreateProject', { state: { roomName: RoomName ?? '' } });
   };
@@ -67,7 +64,7 @@ export default function ProjectsPage({ showToast, onLogout }: Props) {
           </p>
         </div>
 
-        {/* 投稿作成ボタン */}
+        {/* 投稿作成 */}
         <div className={styles.createButtonContainer}>
           <PrimaryButton onClick={handleCreateProject}>
             <Plus size={18} />
@@ -75,7 +72,7 @@ export default function ProjectsPage({ showToast, onLogout }: Props) {
           </PrimaryButton>
         </div>
 
-        {/* 投稿一覧 */}
+        {/* 成果一覧 */}
         <div className={styles.projectsList}>
           {projects.map((project) => (
             <ProjectCard
