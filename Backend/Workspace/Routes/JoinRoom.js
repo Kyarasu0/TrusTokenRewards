@@ -53,7 +53,7 @@ router.post(
     // =====================================
     const userId = req.auth.userId;
     const roomName = req.body?.roomName;
-    const roomPassword = req.body?.roomPassword;
+    const roomPassword = req.body?.password;
     if (!userId || !roomName || !roomPassword) {
         return res.status(400).json({ message: 'Bad Request: userIdかroomNameかroomPasswordが不足しています。' });
     }
@@ -64,13 +64,16 @@ router.post(
     // RoomNameがちゃんと存在しているかの確認
     const roomExists = await DBPerf(
         'Check Room Exists',
-        'SELECT RoomName FROM RoomDetails WHERE RoomName = ?',
+        'SELECT RoomName, RoomPassword FROM RoomDetails WHERE RoomName = ?',
         [roomName]
     );
     if (roomExists.length === 0) {
         return res.status(404).json({ message: 'Not Found: 指定されたルームは存在しません' });
     }
-
+    // ルームパスワードの確認
+    if (roomExists[0].RoomPassword !== roomPassword) {
+        return res.status(401).json({ message: 'Unauthorized: ルームパスワードが間違っています' });
+    }
     // そのRoomにまだ属していないかを確認する
     const alreadyJoined = await DBPerf(
         'Check Already Joined',
@@ -85,6 +88,14 @@ router.post(
         'Insert Room Member',
         'INSERT INTO Rooms (UserID, RoomName) VALUES (?, ?)',
         [userId, roomName]
+    );
+
+    const JoinContent = `${userId}さんが参加しました!.`;
+
+    await DBPerf(
+        'Increment Room Member Count',
+        "INSERT INTO Projects (UserID, RoomName, CreateDate, Content) VALUES(?, ?, CONVERT_TZ(NOW(),'UTC','Asia/Tokyo'), ?)",
+        [userId, roomName, JoinContent]
     );
 
     // ==============================

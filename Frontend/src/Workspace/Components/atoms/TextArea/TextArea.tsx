@@ -1,8 +1,7 @@
 import styles from "./TextArea.module.css";
 
 interface Props {
-  value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  name?: string;
   placeholder?: string;
   required?: boolean;
   rows?: number;
@@ -16,14 +15,10 @@ interface Props {
  * value / onChange を受け取る controlled component として設計
  */
 export default function TextArea({
-  value,
-  onChange,
+  name,
   placeholder,
   required = false,
   rows = 5,
-  name,
-  id,
-  disabled = false
 }: Props) {
   return (
     <textarea
@@ -34,8 +29,6 @@ export default function TextArea({
       required={required}
       rows={rows}
       name={name}
-      id={id}
-      disabled={disabled}
     />
   );
 }

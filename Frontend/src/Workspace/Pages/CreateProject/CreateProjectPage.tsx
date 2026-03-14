@@ -7,6 +7,7 @@ import PrimaryButton from '../../Components/atoms/Button/PrimaryButton';
 import TextArea from '../../Components/atoms/TextArea/TextArea';
 
 import styles from './CreateProjectPage.module.css';
+import { useLocation } from "react-router-dom";
 
 interface Props {
   showToast: (msg: string) => void;
@@ -97,8 +98,7 @@ export default function CreateProjectPage({ showToast, onLogout }: Props) {
               </label>
 
               <TextArea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
+                name="Content"
                 placeholder="どんな成果を出しましたか？"
                 rows={6}
                 required

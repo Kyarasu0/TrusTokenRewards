@@ -78,6 +78,7 @@ export default function JoinRoomPage({ showToast, onLogout }: Props) {
             <div className={styles.fieldGroup}>
               <label className={styles.label}>ルーム名 *</label>
               <TextInput
+                name="RoomName"
                 type="text"
                 placeholder="参加したいルームの名前"
                 required
@@ -90,6 +91,7 @@ export default function JoinRoomPage({ showToast, onLogout }: Props) {
             <div className={styles.fieldGroup}>
               <label className={styles.label}>ルームパスワード *</label>
               <TextInput
+                name="Password"
                 type="password"
                 placeholder="ルームのパスワード"
                 required

@@ -108,9 +108,9 @@ router.post(
             // 1. パラメータ取得
             // =================================
             const fromUserID = req.auth.userId;
-            const { sendToUserID, roomName, Amount, password } = req.body;
+            const { senderUserID, roomName, password, Amount } = req.body;
             const parsedAmount = Number(Amount);
-            if (!fromUserID || !sendToUserID || !roomName || !password || Number.isNaN(parsedAmount) || parsedAmount <= 0) {
+            if (!fromUserID || !senderUserID || !roomName || !password || Number.isNaN(parsedAmount) || parsedAmount <= 0) {
                 return res.status(400).json({
                     message: "Bad Request: パラメータが不正です"
                 });
@@ -140,10 +140,16 @@ router.post(
                 `SELECT Address
                  FROM Identify
                  WHERE UserID = ?`,
-                [sendtoUserID]
+                [senderUserID]
             );
             if (!toUser.length) return res.status(404).json({ message: "送金先ユーザーが見つかりません" });
             const sendToAddress = toUser[0].Address;
+
+            if(fromUserID === senderUserID) {
+                return res.status(400).json({
+                    message: "Bad Request: 送金元と送金先が同一です"
+                });
+            }
 
             // =================================
             // 4. MosaicID取得
@@ -197,40 +203,107 @@ router.post(
             const decryptedPrivateKey = decrypt(password + pepper, encryptedPrivateKeyObj);
 
             // =================================
-            // 9. 送金トランザクション作成
+            // 10. projectID取得
             // =================================
-            // 送金トランザクションの作成
-            const { tx, facade } = CreateTransferTx({
-                networkType: 'testnet',
-                senderPrivateKey: decryptedPrivateKey,
-                recipientRawAddress: sendToAddress,
-                messageText: `Direct Transfer`,
-                fee: transferFee,
-                mosaics: [
-                    {
-                        mosaicId: BigInt(`0x${MosaicIDHex}`),
-                        amount: BigInt(parsedAmount)
-                    }
-                ],
-                deadlineHours: 2
-            });
-            // 送金トランザクションのアナウンス
-            const announceResult = await SignAndAnnounce(
-                tx,
-                decryptedPrivateKey,
-                facade,
-                nodeUrl,
-                {
-                    waitForConfirmation: true,
-                    confirmationTimeoutMs: 120000,
-                    pollIntervalMs: 2000
-                }
+            const projectIDResult = await DBPerf(
+                "プロジェクトID取得",
+                `SELECT ProjectsID FROM Projects WHERE RoomName = ?`,
+                [roomName]
             );
 
+            if (!projectIDResult.length)
+                return res.status(404).json({ message: "プロジェクトが見つかりません" });
+
+            const projectID = projectIDResult[0].ProjectsID;
+
             // =================================
-            // 11. 成功レスポンス
+            // 11. DB仮保存
             // =================================
-            return res.status(200).json({ message: "OK :送金成功" });
+            const tempTxId = crypto.randomUUID();
+
+            await DBPerf(
+                "送金仮保存",
+                `INSERT INTO ProjectDetails
+                (ProjectsID, fromUserID, Date, Amount, TxID)
+                VALUES (?, ?, CONVERT_TZ(NOW(),'UTC','Asia/Tokyo'), ?, ?)`,
+                [projectID, fromUserID, parsedAmount, tempTxId]
+            );
+
+            try {
+
+                // =================================
+                // 12. トランザクション作成
+                // =================================
+                const { tx, facade } = CreateTransferTx({
+                    networkType: 'testnet',
+                    senderPrivateKey: decryptedPrivateKey,
+                    recipientRawAddress: sendToAddress,
+                    messageText: `Direct Transfer`,
+                    fee: transferFee,
+                    mosaics: [
+                        {
+                            mosaicId: BigInt(`0x${MosaicIDHex}`),
+                            amount: BigInt(parsedAmount)
+                        }
+                    ],
+                    deadlineHours: 2
+                });
+
+                // =================================
+                // 13. トランザクション送信
+                // =================================
+                const announceResult = await SignAndAnnounce(
+                    tx,
+                    decryptedPrivateKey,
+                    facade,
+                    nodeUrl,
+                    {
+                        waitForConfirmation: true,
+                        confirmationTimeoutMs: 120000,
+                        pollIntervalMs: 2000
+                    }
+                );
+
+                if (!announceResult.confirmed) {
+                    throw new Error("トランザクション未確定");
+                }
+
+                // =================================
+                // 14. DB更新 (TxHash)
+                // =================================
+                await DBPerf(
+                    "TxHash更新",
+                    `UPDATE ProjectDetails
+                    SET TxID = ?
+                    WHERE TxID = ?`,
+                    [announceResult.hash, tempTxId]
+                );
+
+            } catch (err) {
+
+                // =================================
+                // 失敗 → DB削除
+                // =================================
+                await DBPerf(
+                    "仮保存削除",
+                    `DELETE FROM ProjectDetails WHERE TxID = ?`,
+                    [tempTxId]
+                );
+
+                console.error("送金失敗:", err);
+
+                return res.status(500).json({
+                    message: "送金失敗のためDBをロールバックしました"
+                });
+            }
+
+            // =================================
+            // 成功レスポンス
+            // =================================
+            return res.status(200).json({
+                message: "OK :送金成功"
+            });
+            
 
         } catch (err) {
 

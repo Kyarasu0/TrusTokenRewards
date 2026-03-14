@@ -109,7 +109,7 @@ export default function App() {
 
           {/* 成果詳細ページ */}
           <Route
-            path="/Rooms/:RoomName/:ProjectId"
+            path="/Rooms/:RoomName/:ProjectID"
             element={<ProjectDetailRoute showToast={showToast} />}
           />
 
