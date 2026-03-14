@@ -108,9 +108,9 @@ router.post(
             // 1. パラメータ取得
             // =================================
             const fromUserID = req.auth.userId;
-            const { sendToUserID, roomName, Amount, password } = req.body;
+            const { senderUserID, roomName, password, Amount } = req.body;
             const parsedAmount = Number(Amount);
-            if (!fromUserID || !sendToUserID || !roomName || !password || Number.isNaN(parsedAmount) || parsedAmount <= 0) {
+            if (!fromUserID || !senderUserID || !roomName || !password || Number.isNaN(parsedAmount) || parsedAmount <= 0) {
                 return res.status(400).json({
                     message: "Bad Request: パラメータが不正です"
                 });
@@ -140,7 +140,7 @@ router.post(
                 `SELECT Address
                  FROM Identify
                  WHERE UserID = ?`,
-                [sendtoUserID]
+                [senderUserID]
             );
             if (!toUser.length) return res.status(404).json({ message: "送金先ユーザーが見つかりません" });
             const sendToAddress = toUser[0].Address;
@@ -227,10 +227,27 @@ router.post(
                 }
             );
 
+            const projectIDResult = await DBPerf(
+                "プロジェクトID取得",
+                `SELECT ProjectsID FROM Projects WHERE RoomName = ?`,
+                [roomName]
+            );
+            if (!projectIDResult.length) return res.status(404).json({ message: "プロジェクトが見つかりません" });
+            const projectID = projectIDResult[0].ProjectsID;
+
+            await DBPerf(
+                "プロジェクト詳細に送金記録を追加",
+                `INSERT INTO ProjectDetails (ProjectsID, fromUserID, Date, Amount, TxID)
+                 VALUES (?, ?, CONVERT_TZ(NOW(),'UTC','Asia/Tokyo'), ?, ?)`,
+                [projectID, fromUserID, parsedAmount, announceResult.hash]
+            );
+
             // =================================
             // 11. 成功レスポンス
             // =================================
             return res.status(200).json({ message: "OK :送金成功" });
+
+            
 
         } catch (err) {
 

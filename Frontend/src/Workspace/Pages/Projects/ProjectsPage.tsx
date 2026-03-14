@@ -36,7 +36,6 @@ export default function ProjectsPage({ showToast, onLogout }: Props) {
         }
         const data = await res.json();
         setProjects(data.ProjectList ?? []);
-
       } catch (error) {
         console.error("Error fetching projects:", error);
       }
@@ -46,7 +45,7 @@ export default function ProjectsPage({ showToast, onLogout }: Props) {
 
   // 投稿をクリックして詳細画面へ遷移
   const handleSelectProject = (project: any) => {
-    navigate(`/Rooms/${RoomName}/${project.ProjectID}`, { state: { project } });
+    navigate(`/Rooms/${RoomName}/${project.ProjectsID}`);
   };
 
   // 投稿作成画面へ遷移（後で実装）
@@ -80,7 +79,7 @@ export default function ProjectsPage({ showToast, onLogout }: Props) {
         <div className={styles.projectsList}>
           {projects.map((project) => (
             <ProjectCard
-              key={project.ProjectID}
+              key={project.ProjectsID}
               project={project}
               onClick={() => handleSelectProject(project)}
             />

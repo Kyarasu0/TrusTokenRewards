@@ -28,7 +28,7 @@ export default function ProjectCard({ project, onClick }: Props) {
         <div>
           <div className={styles.UserID}>{project.UserID}</div>
           <div className={styles.roomInfo}>
-            {project.ProjectID} • {project.CreateDate.slice(0, 16).replace("T"," ")}
+            {project.CreateDate.slice(0, 16).replace("T"," ")}
           </div>
         </div>
       </div>

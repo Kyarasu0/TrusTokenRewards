@@ -26,7 +26,6 @@ router.use(express.json());
 // ==========================
 router.get(
   '/',
-  InverseVCM('LOGIN_TOKEN', process.env.LOGIN_SECRET),
   (req, res) => {
     // ==========================
     // 0. Startup Log
@@ -52,7 +51,6 @@ router.get(
 // ==========================
 router.post(
   '/Submit',
-  InverseVCM('LOGIN_TOKEN', process.env.LOGIN_SECRET),
   async (req, res) => {
 
   // ==========================

@@ -17,10 +17,20 @@ interface Props {
  */
 export default function JoinRoomPage({ showToast, onLogout }: Props) {
   const navigate = useNavigate();
-
   // フォーム送信時の処理
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const roomName = form.RoomName.value;
+    const password = form.Password.value;
+
+    fetch("/JoinRoom/Submit",{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ roomName, password })
+    });
     showToast('ルームに参加しました！');
     // 実際にはAPIで検証して、ホームページへリダイレクト
     navigate('/Home');
@@ -55,6 +65,7 @@ export default function JoinRoomPage({ showToast, onLogout }: Props) {
             <div className={styles.fieldGroup}>
               <label className={styles.label}>ルーム名 *</label>
               <TextInput
+                name="RoomName"
                 type="text"
                 placeholder="参加したいルームの名前"
                 required
@@ -65,6 +76,7 @@ export default function JoinRoomPage({ showToast, onLogout }: Props) {
             <div className={styles.fieldGroup}>
               <label className={styles.label}>ルームパスワード *</label>
               <TextInput
+                name="Password"
                 type="password"
                 placeholder="ルームのパスワード"
                 required

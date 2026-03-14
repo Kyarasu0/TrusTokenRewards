@@ -189,8 +189,8 @@ router.post(
             );
             await DBPerf(
                 "INSERT RoomDetails",
-                "INSERT INTO RoomDetails(RoomName, RoomIconPath, MosaicName) VALUES (?, ?, ?)",
-                [roomName, roomIconPath, mosaicName]
+                "INSERT INTO RoomDetails(RoomName, RoomPassword, RoomIconPath, MosaicName) VALUES (?, ?, ?, ?)",
+                [roomName, roomPassword, roomIconPath, mosaicName]
             );
             await DBPerf(
                 "INSERT Rooms",
