@@ -114,7 +114,7 @@ router.post(
     //　4'. 正しくなかったらErrorを返す
     // ==========================
     //Verify Error Log
-    console.error(`[${logOwner}] LoginToken is not verified!`,err);
+    console.error(`[${logOwner}] LoginToken is not verified!`);
     // ==========================
     // 5. Shutdown Log
     // ==========================

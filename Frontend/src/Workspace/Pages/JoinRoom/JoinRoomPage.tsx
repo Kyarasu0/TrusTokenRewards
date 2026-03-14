@@ -4,6 +4,7 @@ import Header from '../../Components/organisms/Header/Header';
 import TextInput from '../../Components/atoms/Input/TextInput';
 import PrimaryButton from '../../Components/atoms/Button/PrimaryButton';
 import styles from './JoinRoomPage.module.css';
+import { useState } from 'react';
 
 interface Props {
   showToast: (msg: string) => void;
@@ -17,13 +18,35 @@ interface Props {
  */
 export default function JoinRoomPage({ showToast, onLogout }: Props) {
   const navigate = useNavigate();
+  const [roomName, setRoomName] = useState('');
+  const [roomPassword, setRoomPassword] = useState('');
 
   // フォーム送信時の処理
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    showToast('ルームに参加しました！');
-    // 実際にはAPIで検証して、ホームページへリダイレクト
-    navigate('/Home');
+
+    try {
+      const res = await fetch('/JoinRoom/Submit', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomName, roomPassword })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        const msg = data?.message || 'ルーム参加に失敗しました。';
+        showToast(msg);
+        return;
+      }
+
+      showToast(data?.message || 'ルームに参加しました！');
+      navigate('/Home');
+    } catch (err) {
+      showToast('通信エラーが発生しました。');
+      console.error(err);
+    }
   };
 
   return (
@@ -58,6 +81,8 @@ export default function JoinRoomPage({ showToast, onLogout }: Props) {
                 type="text"
                 placeholder="参加したいルームの名前"
                 required
+                value={roomName}
+                onChange={(e) => setRoomName(e.target.value)}
               />
             </div>
 
@@ -68,6 +93,8 @@ export default function JoinRoomPage({ showToast, onLogout }: Props) {
                 type="password"
                 placeholder="ルームのパスワード"
                 required
+                value={roomPassword}
+                onChange={(e) => setRoomPassword(e.target.value)}
               />
             </div>
 
