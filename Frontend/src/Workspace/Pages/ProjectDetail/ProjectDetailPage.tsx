@@ -141,7 +141,7 @@ export default function ProjectDetailPage({ showToast, onLogout }: Props) {
                 <div key={tx.TxID} className={styles.transactionItem}>
                   <div className={styles.txContent}>
                     <div className={styles.senderName}>{tx.fromUserID}</div>
-                    <div className={styles.txTime}>{tx.Date}</div>
+                    <div className={styles.txTime}>{tx.Date.slice(0, 16).replace("T", " ")}</div>
                   </div>
                   <div className={styles.txAmount}>+{tx.Amount}</div>
                 </div>
