@@ -26,24 +26,26 @@ export default function ProjectDetailPage({ showToast, onLogout }: Props) {
   const { RoomName, ProjectID }= useParams();
   const [project, setProject] = useState<any>(null);
   const [projectDetails, setProjectDetails] = useState<any[]>([]);
-  useEffect(() => {
-    async function fetchProjectDetail() {
-      try {
-        const res = await fetch(`/Rooms/${RoomName}/${ProjectID}`, {
-          method: "GET",
-          credentials: "include",
-        });
-        if(!res.ok){
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        const data = await res.json();
-        setProject(data.projects);
-        setProjectDetails(data.projectDetails);
-      }catch (error) {
-        console.error("Error fetching project detail:", error);
-      }
-    }
+  const [isSending, setIsSending] = useState(false);
 
+  const fetchProjectDetail = async () => {
+    try {
+      const res = await fetch(`/Rooms/${RoomName}/${ProjectID}`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const data = await res.json();
+      setProject(data.projects);
+      setProjectDetails(data.projectDetails);
+    } catch (error) {
+      console.error("Error fetching project detail:", error);
+    }
+  };
+
+  useEffect(() => {
     fetchProjectDetail();
   }, [ProjectID, RoomName]);
 
@@ -56,8 +58,8 @@ export default function ProjectDetailPage({ showToast, onLogout }: Props) {
     );
   }
 
-  // 秘密鍵を入力して送金
-  const handleSendToken = (e: React.FormEvent<HTMLFormElement>) => {
+  // パスワードを入力して送金
+  const handleSendToken = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const senderUserID = project.UserID; // 送金先は投稿者
@@ -65,8 +67,9 @@ export default function ProjectDetailPage({ showToast, onLogout }: Props) {
     const password = form.Password.value;
     const Amount = form.Amount.value;
     // ここでバックエンドに送金リクエストを送る
+    setIsSending(true);
     try {
-      fetch(`/SendToken/Submit`, {
+      const res = await fetch(`/SendToken/Submit`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -74,11 +77,19 @@ export default function ProjectDetailPage({ showToast, onLogout }: Props) {
         },
         body: JSON.stringify({ senderUserID, roomName, password, Amount })
       });
-      showToast('トークンを送信しました！');
+      const data = await res.json();
+      if (!res.ok) {
+        showToast(data?.message || 'トークンの送信に失敗しました。もう一度お試しください。');
+        return;
+      }
+      showToast(data?.message || 'トークンを送信しました！');
+      await fetchProjectDetail();
     } catch (err) {
       console.error("Error sending token:", err);
-      showToast('トークンの送信に失敗しました。もう一度お試しください。');
-    };
+      showToast('通信エラーが発生しました。');
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -160,9 +171,9 @@ export default function ProjectDetailPage({ showToast, onLogout }: Props) {
               min="1"
               required
             />
-            <PrimaryButton type="submit">
+            <PrimaryButton type="submit" disabled={isSending}>
               <Coins size={18} />
-              <span>トークンを送信</span>
+              <span>{isSending ? '送金中...' : 'トークンを送信'}</span>
             </PrimaryButton>
           </form>
         </div>

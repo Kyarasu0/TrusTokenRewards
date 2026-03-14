@@ -89,7 +89,7 @@ router.post(
   if (isVerified) {
 
     // ==========================
-    //　4. 正しかったらUserID, Addressを含むCookieを返し、Homeへリダイレクト
+    //　4. 正しかったらUserID, Addressを含むCookieを返す
     // ==========================
     // Verify Success Log
     console.log(`[${logOwner}] LoginToken is verified!`);
@@ -103,8 +103,8 @@ router.post(
       httpOnly: true,
       sameSite: 'strict'
     });
-    // リダイレクト
-    res.redirect("/Home");
+    // JSONで成功を返す（フロント側のres.json()に合わせる）
+    return res.status(200).json({ message: "Login successful" });
 
   } else {
 
@@ -117,7 +117,7 @@ router.post(
     // 5. Shutdown Log
     // ==========================
     console.log(`\n[${logOwner}] Shutdown!\n`);
-    return res.status(400).json({ error: 'Bad Request: IDまたはPasswordが正しくありません。' });
+    return res.status(400).json({ message: 'Bad Request: IDまたはPasswordが正しくありません。' });
 
   }
 });
