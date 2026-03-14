@@ -22,6 +22,7 @@ export default function CreateRoomPage({ showToast, onLogout }: Props) {
   const [roomPassword, setRoomPassword] = useState("");
   const [mosaicName, setMosaicName] = useState("");
   const [userPassword, setUserPassword] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +38,7 @@ export default function CreateRoomPage({ showToast, onLogout }: Props) {
       formData.append("roomIcon", roomIcon);
     }
 
+    setIsCreating(true);
     try {
       const res = await fetch("/CreateRoom/Submit", {
         method: "POST",
@@ -56,6 +58,8 @@ export default function CreateRoomPage({ showToast, onLogout }: Props) {
     } catch (err) {
       showToast("通信エラーが発生しました");
       console.error(err);
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -163,8 +167,8 @@ export default function CreateRoomPage({ showToast, onLogout }: Props) {
               />
             </div>
 
-            <PrimaryButton type="submit">
-              ルームを作成する
+            <PrimaryButton type="submit" disabled={isCreating}>
+              {isCreating ? '作成中...' : 'ルームを作成する'}
             </PrimaryButton>
           </form>
         </div>
