@@ -154,18 +154,40 @@ router.post(
         const encryptedPrivateKeyObj = JSON.parse(OwnerInfor[0].PrivateKey);
         const privateKey = decrypt(userPassword + process.env.PEPPER, encryptedPrivateKeyObj);
 
+        // ==============================
+        // 4. DB への事前登録（TX前）
+        // ==============================
+        // MosaicIdはTX前に生成しておく
+        const { mosaicId, mosaicDefinitionTx, facade } = CreateMosaicTx({
+            networkType: 'testnet',
+            senderPrivateKey: privateKey,
+            transferable: true,
+            deadlineHours: 24
+        });
+
+        const roomIconPath = req.files?.roomIcon ? SaveIcon(req.files.roomIcon[0], "Rooms") : null;
+
+        await DBPerf(
+            "INSERT Mosaic",
+            "INSERT INTO Mosaic(MosaicName, MosaicId, OwnerUserID) VALUES (?, ?, ?)",
+            [mosaicName, mosaicId, userId]
+        );
+        await DBPerf(
+            "INSERT RoomDetails",
+            "INSERT INTO RoomDetails(RoomName, RoomPassword, RoomIconPath, MosaicName) VALUES (?, ?, ?, ?)",
+            [roomName, hashedPassword, roomIconPath, mosaicName]
+        );
+        await DBPerf(
+            "INSERT Rooms",
+            "INSERT INTO Rooms(UserID, RoomName) VALUES (?, ?)",
+            [userId, roomName]
+        );
+        console.log(`[${logOwner}] Step4 Log: DB事前登録完了`);
+
         try {
             // ==============================
-            // 4. Mosaicの発行
+            // 5. Mosaicの発行
             // ==============================
-            // Mosaic発行トランザクションの作成
-            const { mosaicId, mosaicDefinitionTx, keyPair, facade } = CreateMosaicTx({
-                networkType: 'testnet',
-                senderPrivateKey: privateKey,
-                transferable: true,
-                deadlineHours: 24
-            });
-            // Mosaic発行トランザクションのアナウンス
             const definitionResult = await SignAndAnnounce(
                 mosaicDefinitionTx,
                 privateKey,
@@ -177,11 +199,11 @@ router.post(
                     pollIntervalMs: 2000
                 }
             );
-            console.log(`[${logOwner}] Step3 Log: Mosaicの発行`);
+            console.log(`[${logOwner}] Step5 Log: Mosaicの発行`);
             console.log(`[${logOwner}] Mosaic Definition TX Hash:`, definitionResult.hash);
 
             // ==============================
-            // 5. Mosaicの供給
+            // 6. Mosaicの供給
             // ==============================
             // Mosaic供給トランザクションの作成
             const { supplyTx, keyPair: supplyKeyPair, facade: supplyFacade } = CreateSupplyTx({
@@ -203,34 +225,29 @@ router.post(
                     pollIntervalMs: 2000
                 }
             );
-            console.log(`[${logOwner}] Step4 Log: Mosaicの供給`);
-            console.log(`[${logOwner}] Mosaic Definition TX Hash:`, supplyResult.hash);
-
-            // ==============================
-            // 6. 渡された情報の保存
-            // ==============================
-            const roomIconPath = req.files?.roomIcon ? SaveIcon(req.files.roomIcon[0], "Rooms") : null;
-            // 1. MosaicのDB登録
-            await DBPerf(
-                "INSERT Mosaic",
-                "INSERT INTO Mosaic(MosaicName, MosaicId, OwnerUserID) VALUES (?, ?, ?)",
-                [mosaicName, mosaicId, userId]
-            );
-            await DBPerf(
-                "INSERT RoomDetails",
-                "INSERT INTO RoomDetails(RoomName, RoomPassword, RoomIconPath, MosaicName) VALUES (?, ?, ?, ?)",
-                [roomName, hashedPassword, roomIconPath, mosaicName]
-            );
-            await DBPerf(
-                "INSERT Rooms",
-                "INSERT INTO Rooms(UserID, RoomName) VALUES (?, ?)",
-                [userId, roomName]
-            );
+            console.log(`[${logOwner}] Step6 Log: Mosaicの供給`);
+            console.log(`[${logOwner}] Mosaic Supply TX Hash:`, supplyResult.hash);
 
         } catch (txErr) {
+            // ==============================
+            // TX失敗 → DB ロールバック
+            // ==============================
             console.error(`[${logOwner}] Blockchain Transaction Error:`, txErr);
+            try {
+                await DBPerf("ROLLBACK DELETE Rooms",     "DELETE FROM Rooms       WHERE UserID = ? AND RoomName = ?", [userId, roomName]);
+                await DBPerf("ROLLBACK DELETE RoomDetails","DELETE FROM RoomDetails WHERE RoomName = ?",                [roomName]);
+                await DBPerf("ROLLBACK DELETE Mosaic",    "DELETE FROM Mosaic      WHERE MosaicName = ?",              [mosaicName]);
+                // アイコンファイルも削除
+                if (roomIconPath) {
+                    const iconFullPath = path.join(__dirname, "..", roomIconPath);
+                    if (fs.existsSync(iconFullPath)) fs.unlinkSync(iconFullPath);
+                }
+                console.log(`[${logOwner}] Rollback completed`);
+            } catch (rollbackErr) {
+                console.error(`[${logOwner}] Rollback failed:`, rollbackErr);
+            }
             return res.status(500).json({
-                message: "Failed to register mosaic on blockchain",
+                message: "ブロックチェーントランザクションに失敗しました。",
                 error: txErr.message
             });
         }
@@ -239,7 +256,7 @@ router.post(
         // 7. Shutdown Log
         // ==============================
         console.log(`\n[${logOwner}] Shutdown!\n`);
-        return res.redirect("/Home");
+        return res.status(200).json({ message: "ルームを作成しました！" });
     }
 );
 
