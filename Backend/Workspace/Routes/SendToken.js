@@ -89,10 +89,10 @@ router.get(
 
 // ==========================
 // 通常送金ルート
-// POST /SendToken/Submit
+// POST /SendToken/:ProjectID/Submit
 // ==========================
 router.post(
-    '/Submit',
+    '/:ProjectID/Submit',
     VCM('LOGIN_TOKEN', process.env.LOGIN_SECRET),
     async (req, res) => {
 
@@ -108,9 +108,10 @@ router.post(
             // 1. パラメータ取得
             // =================================
             const fromUserID = req.auth.userId;
+            const ProjectID = req.params.ProjectID;
             const { senderUserID, roomName, password, Amount } = req.body;
             const parsedAmount = Number(Amount);
-            if (!fromUserID || !senderUserID || !roomName || !password || Number.isNaN(parsedAmount) || parsedAmount <= 0) {
+            if (!fromUserID || !senderUserID || !roomName || !ProjectID || !password || Number.isNaN(parsedAmount) || parsedAmount <= 0) {
                 return res.status(400).json({
                     message: "Bad Request: パラメータが不正です"
                 });
@@ -203,20 +204,6 @@ router.post(
             const decryptedPrivateKey = decrypt(password + pepper, encryptedPrivateKeyObj);
 
             // =================================
-            // 10. projectID取得
-            // =================================
-            const projectIDResult = await DBPerf(
-                "プロジェクトID取得",
-                `SELECT ProjectsID FROM Projects WHERE RoomName = ?`,
-                [roomName]
-            );
-
-            if (!projectIDResult.length)
-                return res.status(404).json({ message: "プロジェクトが見つかりません" });
-
-            const projectID = projectIDResult[0].ProjectsID;
-
-            // =================================
             // 11. DB仮保存
             // =================================
             const tempTxId = crypto.randomUUID();
@@ -226,7 +213,7 @@ router.post(
                 `INSERT INTO ProjectDetails
                 (ProjectsID, fromUserID, Date, Amount, TxID)
                 VALUES (?, ?, CONVERT_TZ(NOW(),'UTC','Asia/Tokyo'), ?, ?)`,
-                [projectID, fromUserID, parsedAmount, tempTxId]
+                [ProjectID, fromUserID, parsedAmount, tempTxId]
             );
 
             try {

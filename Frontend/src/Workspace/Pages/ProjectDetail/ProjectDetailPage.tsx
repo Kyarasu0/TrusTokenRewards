@@ -68,7 +68,7 @@ export default function ProjectDetailPage({ showToast, onLogout }: Props) {
     // ここでバックエンドに送金リクエストを送る
     setIsSending(true);
     try {
-      const res = await fetch(`/SendToken/Submit`, {
+      const res = await fetch(`/SendToken/${ProjectID}/Submit`, {
         method: "POST",
         credentials: "include",
         headers: {

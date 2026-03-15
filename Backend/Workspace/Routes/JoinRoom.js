@@ -3,6 +3,7 @@ import express from 'express';
 // 自作モジュール読み込み
 import DBPerf from '../Tools/DBPerf.js';
 import VCM from '../Tools/VCM.js';
+import argon2 from 'argon2';                          // パスワードハッシュ検証用
 
 // Express Router 初期化
 const router = express.Router();
@@ -70,8 +71,17 @@ router.post(
     if (roomExists.length === 0) {
         return res.status(404).json({ message: 'Not Found: 指定されたルームは存在しません' });
     }
+
+      // データが登録されていなくてもダミーパスワードを用意(サイドチャネル攻撃対策)
+      const hashToVerify = roomPassword.length === 0 ? process.env.DUMMY_PASSWORD : roomExists[0].RoomPassword;
+
+      // ==========================
+      // 3. PasswordをArgon2でHash化し、検証する
+      // ==========================
+      const isVerified = await argon2.verify(hashToVerify, roomPassword + process.env.PEPPER);
+
     // ルームパスワードの確認
-    if (roomExists[0].RoomPassword !== roomPassword) {
+    if (!isVerified) {
         return res.status(401).json({ message: 'Unauthorized: ルームパスワードが間違っています' });
     }
     // そのRoomにまだ属していないかを確認する
@@ -90,7 +100,7 @@ router.post(
         [userId, roomName]
     );
 
-    const JoinContent = `${userId}さんが参加しました!.`;
+    const JoinContent = `${userId}さんが参加しました!`;
 
     await DBPerf(
         'Increment Room Member Count',
