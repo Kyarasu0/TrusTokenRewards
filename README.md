@@ -167,7 +167,8 @@ docker compose up --build
 ### ルーム作成とプロジェクト作成の動画
 https://drive.google.com/file/d/1g_lcM-pURXTq3K0w3SleOGm_Cxb0UOwh/view?usp=sharing
 ### ルーム参加と送金の動画
-https://drive.google.com/file/d/1WdLlSvVKm3P7bHAf5kVESpT_gGO9EOyP/view?usp=sharing
+https://drive.google.com/file/d/1WdLlSvVKm3P7bHAf5kVESpT_gGO9EOyP/view?usp=drive_link
+
 ---
 
 ## API 一覧
