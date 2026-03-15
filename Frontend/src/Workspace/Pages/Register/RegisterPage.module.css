@@ -54,4 +54,31 @@
     color: #1f2937;
 
     box-sizing: border-box;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
+
+    .keyText {
+        flex: 1;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .copyButton {
+        flex-shrink: 0;
+        margin-left: 12px;
+        padding: 4px 12px;
+        border: 1px solid #3b82f6;
+        border-radius: 6px;
+        background: #fff;
+        color: #3b82f6;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+    }
+
+    .copyButton:hover {
+        background: #3b82f6;
+        color: #fff;
+    }

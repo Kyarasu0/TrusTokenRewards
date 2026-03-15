@@ -14,7 +14,7 @@ export default function TextInput({ icon, className = '', ...rest }: Props) {
   return (
     <div className={`${styles.group} ${className}`}>
       {icon && <div className={styles.icon}>{icon}</div>}
-      <input className={styles.input} {...rest} />
+      <input className={`${styles.input} ${icon ? styles.withIcon : styles.noIcon}`} {...rest} />
     </div>
   );
 }

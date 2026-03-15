@@ -1,9 +1,17 @@
 import { Coins } from 'lucide-react';
-import type { ProjectData } from '../../../data/rooms';
 import styles from './ProjectCard.module.css';
 
+interface ProjectCardData {
+  ProjectID: string;
+  UserID: string;
+  CreateDate: string;
+  Content: string;
+  TotalAmount: number | null;
+  TxCount: number;
+}
+
 interface Props {
-  project: ProjectData;
+  project: ProjectCardData;
   onClick: () => void;
 }
 
@@ -18,26 +26,26 @@ export default function ProjectCard({ project, onClick }: Props) {
       {/* ヘッダー：投稿者とルーム情報 */}
       <div className={styles.header}>
         <div>
-          <div className={styles.authorName}>{project.authorName}</div>
+          <div className={styles.UserID}>{project.UserID}</div>
           <div className={styles.roomInfo}>
-            {project.roomName} • {project.timestamp}
+            {project.CreateDate.slice(0, 16).replace("T"," ")}
           </div>
         </div>
       </div>
 
       {/* コンテンツ：投稿本文 */}
       <div className={styles.content}>
-        {project.content}
+        {project.Content}
       </div>
 
       {/* フッター：受信した通貨情報 */}
       <div className={styles.footer}>
         <div className={styles.coinBadge}>
           <Coins size={16} />
-          <span>{project.totalReceived}</span>
+          <span>{project.TotalAmount ?? 0}</span>
         </div>
         <div className={styles.transactionCount}>
-          {project.transactions?.length ?? 0} 件の応援
+          {project.TxCount} 件の応援
         </div>
       </div>
     </div>

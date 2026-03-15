@@ -1,4 +1,4 @@
-import { ShieldCheck, Bell, User, LogOut } from 'lucide-react';
+import { ShieldCheck,  LogOut } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 
 import IconButton from '../../atoms/IconButton/IconButton';
@@ -9,7 +9,7 @@ interface Props {
   showToast: (msg: string) => void;
 }
 
-export default function Header({ onLogout, showToast }: Props) {
+export default function Header({ onLogout }: Props) {
 
   const navigate = useNavigate();
 
@@ -17,7 +17,7 @@ export default function Header({ onLogout, showToast }: Props) {
     <header className={styles.header}>
       <div
         className={styles.logo}
-        onClick={() => navigate("/home")}
+        onClick={() => navigate("/Home")}
         style={{ cursor: "pointer" }}
       >
         <ShieldCheck color="#1d1d1f" size={28} />
@@ -25,14 +25,6 @@ export default function Header({ onLogout, showToast }: Props) {
       </div>
 
       <div className={styles.actions}>
-        <IconButton onClick={() => showToast('通知はありません')}>
-          <Bell size={18} />
-        </IconButton>
-
-        <IconButton onClick={() => showToast('プロフィール設定を開きます')}>
-          <User size={18} />
-        </IconButton>
-
         <IconButton
           onClick={onLogout}
           style={{

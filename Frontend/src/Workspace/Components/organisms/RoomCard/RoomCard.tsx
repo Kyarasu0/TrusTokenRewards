@@ -3,17 +3,13 @@ import { useFadeInUp } from '../../../hooks/useFadeInUp';
 import fadeStyles from '../../atoms/Animation/FadeInUp.module.css';
 import styles from './RoomCard.module.css';
 import type { RoomData } from '../../../data/rooms';
+import defaultImage from '../../../../../public/Images/image.png';
 
 interface Props {
   room: RoomData;
   onClick: (name: string) => void;
 }
 
-/**
- * 一つのルーム（組織）をカードとして表現する "Organism"。
- * グリッド内で等間隔に並べられるよう高さや内部余白を調整し、
- * ホバー時のアニメーションも仕込んであります。
- */
 export default function RoomCard({ room, onClick }: Props) {
   const { ref, isVisible } = useFadeInUp();
 
@@ -23,11 +19,17 @@ export default function RoomCard({ room, onClick }: Props) {
       className={`${styles.card} ${fadeStyles.fadeInUp} ${
         isVisible ? fadeStyles.visible : ''
       }`}
-      onClick={() => onClick(room.name)}
+      onClick={() => onClick(room.roomName)}
     >
-      <div className={styles.largeIcon}>{room.icon}</div>
-      <h3 className={styles.title}>{room.name}</h3>
-      <p className={styles.desc}>{room.description}</p>
+      <div className={styles.largeIcon}>
+        <img
+          src={room.roomIconPath ? `http://localhost:5000${room.roomIconPath}` : defaultImage}
+          alt={room.roomName}
+          className={styles.image}
+        />
+      </div>
+
+      <h3 className={styles.title}>{room.roomName}</h3>
 
       <div className={styles.footer}>
         <div className={styles.stats}>
@@ -36,12 +38,18 @@ export default function RoomCard({ room, onClick }: Props) {
             <span>{room.members}</span>
           </div>
         </div>
+
         <div
           className={styles.badge}
-          style={{ color: '#d97706', background: 'rgba(245, 158, 11, 0.1)', padding: '6px 12px', borderRadius: '12px' }}
+          style={{
+            color: '#d97706',
+            background: 'rgba(245, 158, 11, 0.1)',
+            padding: '6px 12px',
+            borderRadius: '12px'
+          }}
         >
           <Coins size={16} />
-          <span>{room.totalCoins.toLocaleString()}</span>
+          <span>{room.balance.toLocaleString()}</span>
         </div>
       </div>
     </div>

@@ -4,32 +4,66 @@ import Header from '../../Components/organisms/Header/Header';
 import TextInput from '../../Components/atoms/Input/TextInput';
 import PrimaryButton from '../../Components/atoms/Button/PrimaryButton';
 import styles from './CreateRoomPage.module.css';
+import { useState } from "react";
+import defaultImage from "../../../../public/Images/image.png";
 
 interface Props {
   showToast: (msg: string) => void;
   onLogout: () => void;
 }
 
-/**
- * CreateRoom ページ
- * 新しいルーム（組織）を作成するためのフォーム。
- * 以下の情報を入力して送信します：
- * - ルーム名
- * - ルーム説明
- * - ルームパスワード
- * - 通貨名
- * - 秘密鍵
- * - ルームアイコン（オプション）
- */
 export default function CreateRoomPage({ showToast, onLogout }: Props) {
   const navigate = useNavigate();
 
-  // フォーム送信時の処理
-  const handleSubmit = (e: React.FormEvent) => {
+  // フォームの state
+  const [roomIcon, setRoomIcon] = useState<File | null>(null);
+  const [roomName, setRoomName] = useState("");
+  const [roomDescription, setRoomDescription] = useState("");
+  const [roomPassword, setRoomPassword] = useState("");
+  const [mosaicName, setMosaicName] = useState("");
+  const [userPassword, setUserPassword] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    showToast('ルームを作成しました！');
-    // 実際にはAPIで送信して、ホームページへリダイレクト
-    navigate('/home');
+
+    const formData = new FormData();
+    formData.append("roomName", roomName);
+    formData.append("roomDiscription", roomDescription); // サーバー側と同名
+    formData.append("roomPassword", roomPassword);
+    formData.append("mosaicName", mosaicName);
+    formData.append("userPassword", userPassword);
+
+    if (roomIcon) {
+      formData.append("roomIcon", roomIcon);
+    }
+
+    setIsCreating(true);
+    try {
+      const res = await fetch("/CreateRoom/Submit", {
+        method: "POST",
+        credentials: "include",
+        body: formData
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        showToast(data.message);
+        return;
+      }
+
+      // 成功時もmessageがあれば表示
+      if (data.message) {
+        showToast(data.message);
+      }
+      navigate("/Home");
+
+    } catch (err) {
+      showToast("通信エラーが発生しました");
+      console.error(err);
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   return (
@@ -38,14 +72,13 @@ export default function CreateRoomPage({ showToast, onLogout }: Props) {
 
       <main className={styles.container}>
         <div className={styles.return}>
-            {/* 戻るボタン */}
-            <button
+          <button
             className={styles.backButton}
             onClick={() => navigate(-1)}
             title="戻る"
-            >
+          >
             <ArrowLeft size={24} />
-            </button>
+          </button>
         </div>
 
         <div className={styles.formCard}>
@@ -64,6 +97,8 @@ export default function CreateRoomPage({ showToast, onLogout }: Props) {
                 type="text"
                 placeholder="例: マーケティングチーム"
                 required
+                value={roomName}
+                onChange={(e) => setRoomName(e.target.value)}
               />
             </div>
 
@@ -74,6 +109,8 @@ export default function CreateRoomPage({ showToast, onLogout }: Props) {
                 className={styles.textarea}
                 placeholder="ルームの目的や説明を入力"
                 required
+                value={roomDescription}
+                onChange={(e) => setRoomDescription(e.target.value)}
               />
             </div>
 
@@ -84,6 +121,8 @@ export default function CreateRoomPage({ showToast, onLogout }: Props) {
                 type="password"
                 placeholder="メンバーが参加時に入力します"
                 required
+                value={roomPassword}
+                onChange={(e) => setRoomPassword(e.target.value)}
               />
             </div>
 
@@ -94,31 +133,45 @@ export default function CreateRoomPage({ showToast, onLogout }: Props) {
                 type="text"
                 placeholder="例: MarketingCoin"
                 required
+                value={mosaicName}
+                onChange={(e) => setMosaicName(e.target.value)}
               />
             </div>
 
-            {/* 秘密鍵 */}
+            {/* 秘密鍵（作成者のパスワード） */}
             <div className={styles.fieldGroup}>
-              <label className={styles.label}>秘密鍵 *</label>
+              <label className={styles.label}>作成者パスワード *</label>
               <TextInput
                 type="password"
-                placeholder="ルームの秘密鍵を入力"
+                placeholder="ルーム作成者のパスワードを入力"
                 required
+                value={userPassword}
+                onChange={(e) => setUserPassword(e.target.value)}
               />
             </div>
 
-            {/* ルームアイコン（オプション） */}
+            {/* ルームアイコン */}
             <div className={styles.fieldGroup}>
               <label className={styles.label}>ルームアイコン（オプション）</label>
-              <TextInput
-                type="text"
-                placeholder="アイコンの絵文字または名前"
+              <label htmlFor="roomIcon" className={styles.fileUpload}>
+                <img
+                  src={roomIcon ? URL.createObjectURL(roomIcon) : defaultImage}
+                  className={styles.iconPreview}
+                  alt="ルームアイコン"
+                />
+                <p>画像を選択</p>
+              </label>
+              <input
+                id="roomIcon"
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={(e) => setRoomIcon(e.target.files?.[0] || null)}
               />
             </div>
 
-            {/* 送信ボタン */}
-            <PrimaryButton type="submit">
-              ルームを作成する
+            <PrimaryButton type="submit" disabled={isCreating}>
+              {isCreating ? '作成中...' : 'ルームを作成する'}
             </PrimaryButton>
           </form>
         </div>

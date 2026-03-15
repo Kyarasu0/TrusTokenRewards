@@ -14,7 +14,6 @@
 
 .input {
   width: 100%;
-  padding: 16px 16px 16px 48px;
   background: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 16px;
@@ -22,6 +21,14 @@
   color: #1d1d1f;
   transition: all 0.2s ease;
   box-sizing: border-box; 
+}
+
+.withIcon{
+  padding: 16px 16px 16px 48px;
+}
+
+.noIcon{
+  padding: 16px 16px 16px 16px;
 }
 
 .input:focus {

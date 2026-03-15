@@ -1,18 +1,25 @@
-import React from 'react';
-import { Sparkles, Code, Megaphone, Globe, Rocket, LifeBuoy } from 'lucide-react';
+// import React from 'react';
+// import { Sparkles, Code, Megaphone, Globe, Rocket, LifeBuoy } from 'lucide-react';
 
 /**
  * RoomData インターフェースは
  * アプリ内で表示される "ルーム" （組織）
  * を表す型です。
  */
+// export interface RoomData {
+//   id: string;
+//   name: string;
+//   description: string;
+//   icon: React.ReactNode;
+//   members: number;
+//   totalCoins: number;
+// }
+
 export interface RoomData {
-  id: string;
-  name: string;
-  description: string;
-  icon: React.ReactNode;
+  roomName: string;
+  roomIconPath: string;
   members: number;
-  totalCoins: number;
+  balance: number;
 }
 
 /**
@@ -45,56 +52,56 @@ export interface ProjectData {
  * モックデータ: ルームの一覧。実際にはAPI等から取得しますが
  * サンプルとしてアプリに組み込んでいます。
  */
-export const ROOM_DATA: RoomData[] = [
-  {
-    id: 'r1',
-    name: 'Design Studio',
-    description: 'UI/UXからブランディングまで、クリエイティブの心臓部。日々のデザインへの賞賛を。',
-    icon: <Sparkles size={64} style={{ transition: 'all 0.3s ease' }} />,
-    members: 24,
-    totalCoins: 12500,
-  },
-  {
-    id: 'r2',
-    name: 'Engineering',
-    description: 'フロントエンド、バックエンドの技術共有とコードレビューへの感謝を伝えるルーム。',
-    icon: <Code size={64} style={{ transition: 'all 0.3s ease' }} />,
-    members: 86,
-    totalCoins: 8900,
-  },
-  {
-    id: 'r3',
-    name: 'Marketing',
-    description: '市場調査やプロモーションの成果を報告する場所。マーケターの功績を称えよう。',
-    icon: <Megaphone size={64} style={{ transition: 'all 0.3s ease' }} />,
-    members: 15,
-    totalCoins: 3200,
-  },
-  {
-    id: 'r4',
-    name: 'All Hands',
-    description: '全社員が参加するパブリックルーム。会社全体への貢献や大きな感謝をここで伝えましょう。',
-    icon: <Globe size={64} style={{ transition: 'all 0.3s ease' }} />,
-    members: 240,
-    totalCoins: 45000,
-  },
-  {
-    id: 'r5',
-    name: 'Project Alpha',
-    description: '極秘の新規事業プロジェクトチーム。日々の泥臭い検証作業にコインを。',
-    icon: <Rocket size={64} style={{ transition: 'all 0.3s ease' }} />,
-    members: 8,
-    totalCoins: 1200,
-  },
-  {
-    id: 'r6',
-    name: 'Support',
-    description: 'お客様の声を第一に。CSチームの丁寧な対応に感謝の気持ちを可視化。',
-    icon: <LifeBuoy size={64} style={{ transition: 'all 0.3s ease' }} />,
-    members: 32,
-    totalCoins: 5600,
-  },
-];
+// export const ROOM_DATA: RoomData[] = [
+//   {
+//     id: 'r1',
+//     name: 'Design Studio',
+//     description: 'UI/UXからブランディングまで、クリエイティブの心臓部。日々のデザインへの賞賛を。',
+//     icon: <Sparkles size={64} style={{ transition: 'all 0.3s ease' }} />,
+//     members: 24,
+//     totalCoins: 12500,
+//   },
+//   {
+//     id: 'r2',
+//     name: 'Engineering',
+//     description: 'フロントエンド、バックエンドの技術共有とコードレビューへの感謝を伝えるルーム。',
+//     icon: <Code size={64} style={{ transition: 'all 0.3s ease' }} />,
+//     members: 86,
+//     totalCoins: 8900,
+//   },
+//   {
+//     id: 'r3',
+//     name: 'Marketing',
+//     description: '市場調査やプロモーションの成果を報告する場所。マーケターの功績を称えよう。',
+//     icon: <Megaphone size={64} style={{ transition: 'all 0.3s ease' }} />,
+//     members: 15,
+//     totalCoins: 3200,
+//   },
+//   {
+//     id: 'r4',
+//     name: 'All Hands',
+//     description: '全社員が参加するパブリックルーム。会社全体への貢献や大きな感謝をここで伝えましょう。',
+//     icon: <Globe size={64} style={{ transition: 'all 0.3s ease' }} />,
+//     members: 240,
+//     totalCoins: 45000,
+//   },
+//   {
+//     id: 'r5',
+//     name: 'Project Alpha',
+//     description: '極秘の新規事業プロジェクトチーム。日々の泥臭い検証作業にコインを。',
+//     icon: <Rocket size={64} style={{ transition: 'all 0.3s ease' }} />,
+//     members: 8,
+//     totalCoins: 1200,
+//   },
+//   {
+//     id: 'r6',
+//     name: 'Support',
+//     description: 'お客様の声を第一に。CSチームの丁寧な対応に感謝の気持ちを可視化。',
+//     icon: <LifeBuoy size={64} style={{ transition: 'all 0.3s ease' }} />,
+//     members: 32,
+//     totalCoins: 5600,
+//   },
+// ];
 
 /**
  * モックデータ: 投稿一覧。実際にはAPI等から取得しますが
