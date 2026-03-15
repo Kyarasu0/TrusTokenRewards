@@ -164,6 +164,10 @@ docker compose up --build
 - プロジェクト詳細画面では、投稿ごとの受取総額や送金履歴を確認できます。
 - トランザクションは Symbol テストネットにも記録されるため、応援の履歴を後から検証できます。
 
+### ルーム作成とプロジェクト作成の動画
+https://drive.google.com/file/d/1g_lcM-pURXTq3K0w3SleOGm_Cxb0UOwh/view?usp=sharing
+### ルーム参加と送金の動画
+https://drive.google.com/file/d/1WdLlSvVKm3P7bHAf5kVESpT_gGO9EOyP/view?usp=sharing
 ---
 
 ## API 一覧
